@@ -301,10 +301,6 @@ class AddHuman extends React.Component {
                         {getFieldDecorator('Cap', {
                           rules: [{ required: true, message: 'Please input your email!' }],
                         })(
-                          // <Input
-                          //   style={{ width: '400px' }}
-                          //   type="number"
-                          // />,
                           <Select style={{ width: '400px' }} onChange={this.onChangeQuanLy}>
                                   {optionCap}
                                 </Select>,

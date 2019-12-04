@@ -76,7 +76,7 @@ export default class DetailHuman extends React.Component {
                     </Form.Item>
                   </Col>
                   <Col span={12}>
-                    <Form.Item >
+                    <Form.Item > 
                       <Col span={3}>
                         Địa chỉ:
             </Col>

@@ -71,7 +71,7 @@ export default class DetailHuman extends React.Component {
                         Họ Tên :
               </Col>
                         <span>
-                            { this.state.currUser ?this.state.currUser.HoTen:null}
+                            { this.state.currUser ?this.state.currUser.HoTen:null} 
                             </span>
                     </Form.Item>
                   </Col>

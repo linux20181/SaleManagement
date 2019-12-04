@@ -33,10 +33,6 @@ export default class DetailHuman extends React.Component {
             })
         })
         })
-        if(this.state){
-            console.log(this.state);
-
-        }
     }
     getQuanLy = (id) =>{
         var tmp = _.filter(this.state.allUser,function(data){

@@ -1,0 +1,18 @@
+.form-head {
+    border-bottom:solid ;
+    border-width: 1px;
+    border-bottom-color: #dedede;
+    padding-bottom: 10px;
+}
+.float-right{
+    float: right;
+    margin-bottom: 7px;
+    margin-top: 5px;
+}
+.display-left{
+    text-align: left !important;
+}
+.title-head{
+    text-transform: "uppercase";
+     color: "#1890ff";
+}

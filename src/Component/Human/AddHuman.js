@@ -27,6 +27,7 @@ class AddHuman extends React.Component {
     this.onChangeQuanLy = this.onChangeQuanLy.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
+  // thu esit file roi pull ve may xem co duoc k hihi 
   validateFields(data){
     var validates= [];
     if(data){

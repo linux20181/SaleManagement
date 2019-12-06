@@ -269,6 +269,7 @@ class AddHuman extends React.Component {
             </Col>
                       <span>
                         {getFieldDecorator('PhongBan', {
+                          rules: [{ required: true, message: 'Please input your PhongBan!' }],
                         })(
                           <Input
                             style={{ width: '400px' }}

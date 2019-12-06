@@ -190,9 +190,9 @@ app.post('/api/hosotailieus',(req,res)=>{
 })
 // -----------------------------------------Nguoi Dung
 app.get('/nguoidungs',(req,res)=>{ 
-
+  var _query = " ";
   if(req._parsedUrl.query){
-    var _query =  replaceString(req._parsedUrl.query,"%20"," ");
+     _query =  replaceString(req._parsedUrl.query,"%20"," ");
   }
   connection.query("Select * from users " + _query ,function(error,results){
     if (error) throw error;

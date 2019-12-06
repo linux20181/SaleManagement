@@ -27,7 +27,7 @@ export default class TreeHuman extends React.Component {
                  dataNguoiDung:data.data,
              })
         })
-    }
+    } 
     nextPage= page =>{
         console.log(page);
         this.setState({

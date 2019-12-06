@@ -449,7 +449,7 @@ app.post('/api/vungs', (req, res) => {
 })
 // -------------------------------------------Loai Ho So
 app.get('/loaihosos', (req, res) => {
-  connection.query('SELECT * from loaihosos', function (error, results) {
+  connection.query('SELECT * from loaihosos'  , function (error, results) {
     if (error) throw error;
     res.send(results)
   });

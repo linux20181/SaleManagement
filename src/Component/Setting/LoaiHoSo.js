@@ -25,6 +25,7 @@ export default class LoaiHoSo extends React.Component {
         this.save = this.save.bind(this);
         this.cancel = this.cancel.bind(this);
         this.isEditting = this.isEditting.bind(this);
+        
     }
     cancel() {
         this.setState({ visible: false });
@@ -183,9 +184,6 @@ export default class LoaiHoSo extends React.Component {
             MaVung: null,
             visible: true,
         });
-    }
-    searchItem(value){
-        console.log(value);
     }
     render() {
         var _this = this;

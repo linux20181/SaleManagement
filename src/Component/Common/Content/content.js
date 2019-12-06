@@ -2,26 +2,39 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import 'react-block-ui/style.css';
 import { Layout, Breadcrumb, Menu, Icon, Avatar, Badge, Dropdown } from 'antd';
-import { BrowserRouter as Router, Route, Link ,useHistory } from "react-router-dom";
+import { BrowserRouter as Router, Route, Link  } from "react-router-dom";
 import { IoIosPricetags ,IoMdAdd } from "react-icons/io";
 import * as CONSTANT from '../../../Constant/constant';
 import nguoidungService from '../../../Service/nguoidung.service';
-import BlockUi from 'react-block-ui';
 import 'react-block-ui/style.css';
+import _ from 'lodash';
 // import Siders from './Sider';
 import logo from '../../../Asset/Image/logo192.png'
 import * as APP_STATE from '../../../router';
 const { SubMenu } = Menu;
 const { Content, Sider, Header } = Layout;
+function convetHoTen(str){
+    var arr = [];
+    var _str = "";
+    if(str){
+       arr = _.cloneDeep(_.split(str," "));
+    }
+    _.forEach(arr,function(i){
+        _str += i[0];
+    })
+    return _str;
+}
 export default class Contents extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
         this.isLogout = this.isLogout.bind(this);
         this.nguoidungService = new nguoidungService();
+        this.detailInfo = this.detailInfo.bind(this);
     }
     isAdmin(){
         var tmp = CONSTANT.GROUP.ADMIN;
+        
       if(this.nguoidungService.getGroupUserCurrent() === tmp){
         return true;
       }
@@ -44,11 +57,16 @@ export default class Contents extends React.Component {
             window.location.reload();
         }
     }
+   
+    detailInfo(){      
+        var _this =this
+        window.location.replace("/nhansu/chitiet/" + _this.nguoidungService.getUserCurrent().ID);
+    }
     render() {
         const menu = (
             <Menu>
                 <Menu.Item>
-                    <a >
+                    <a onClick={this.detailInfo} >
                         Thông tin cá nhân
                 </a>
                 </Menu.Item>
@@ -80,14 +98,14 @@ export default class Contents extends React.Component {
                             <Menu.Item key="3" style={{ float: 'right' }}>
 
                                 <Dropdown overlay={menu} placement="bottomLeft">
-                                    <a style={{}}>System Account</a>
+                                <a style={{}}>{this.nguoidungService.getUserCurrent().HoTen}</a>
                                 </Dropdown>
                             </Menu.Item>
 
-                            <Menu.Item key="44" style={{ width:'15px',float: 'right' }}>
-                                <span style={{ marginRight: 24 }}>
-                                    <Badge count={2}>
-                                        <Avatar > User </Avatar>
+                            <Menu.Item key="44" style={{ width:'55px',float: 'right' }}>
+                                <span style={{ marginRight: "50px" }}>
+                                    <Badge count={3}>
+        <Avatar >{convetHoTen(this.nguoidungService.getUserCurrent().HoTen)}</Avatar>
                                     </Badge>
                                 </span></Menu.Item>
 

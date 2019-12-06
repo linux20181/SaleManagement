@@ -27,6 +27,14 @@ connection.connect(function (err) {
     return;
   }
 });
+// replace chuỗi str có ký tự str1 thanh str2 . Do  replace () chỉ thay the được 1 ký tự sau một lần gọi . 
+function replaceString(str,str1,str2){ 
+  var cloneStr = str;
+  for( let i = 0; i < str.length ; i++){
+    cloneStr = cloneStr.replace(str1,str2);
+  }
+  return cloneStr;
+}
 //------------------------------------------Lịch sử
 app.get('/logs',(req,res)=>{
   connection.query("Select * from logs",function(error,result){
@@ -181,8 +189,12 @@ app.post('/api/hosotailieus',(req,res)=>{
   }
 })
 // -----------------------------------------Nguoi Dung
-app.get('/nguoidungs',(req,res)=>{
-  connection.query("Select * from users",function(error,results){
+app.get('/nguoidungs',(req,res)=>{ 
+
+  if(req._parsedUrl.query){
+    var _query =  replaceString(req._parsedUrl.query,"%20"," ");
+  }
+  connection.query("Select * from users " + _query ,function(error,results){
     if (error) throw error;
     res.send(results);
   })

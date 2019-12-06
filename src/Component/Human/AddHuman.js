@@ -244,7 +244,11 @@ class AddHuman extends React.Component {
                         )}
                       </span>
                     </Form.Item>
-                    <Form.Item >
+                  </Col>
+                </Row>
+                <Row>
+                  <Col span={12}>
+                <Form.Item >
                       <Col span={3}>
                         Xác thực MK:
             </Col>
@@ -257,8 +261,23 @@ class AddHuman extends React.Component {
                         )}
                       </span>
                     </Form.Item>
-                  </Col>
-                </Row>
+                    </Col>
+                    <Col span={12}>
+                <Form.Item >
+                      <Col span={3}>
+                        Phòng ban:
+            </Col>
+                      <span>
+                        {getFieldDecorator('PhongBan', {
+                        })(
+                          <Input
+                            style={{ width: '400px' }}
+                          />,
+                        )}
+                      </span>
+                    </Form.Item>
+                    </Col>
+                  </Row>
                 <Row>
                   <Col span={12}>
                     <Form.Item >

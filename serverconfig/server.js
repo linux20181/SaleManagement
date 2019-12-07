@@ -239,15 +239,15 @@ app.post('/register/nguoidungs',(req,res) => {
       res.send(result);
     })
   }
-  // if (req.body.ID) {
-  //   connection.query("UPDATE users SET HoTen= ? , Tuoi = ? , MatKhau = ? ,ViTri = ? ,Phone = ? ,Group = ? , PhongBan = ? ,Cap = ? , DiaChi = ?  WHERE ID= ?", [req.body.HoTen, req.body.Tuoi,req.body.MatKhau,req.body.ViTri,req.body.Phone,req.body.Group,req.body.PhongBan,req.body.Cap,req.body.DiaChi,req.body.ID], function (err, result) {
-  //     if (err) {
-  //       console.log(err);
-  //     }
-  //     console.log("Update");
-  //     res.send(result);
-  //   })
-  // }
+  if (req.body.ID) {
+    connection.query("UPDATE users SET DiaChi= ? , Tuoi = ? , Phone = ?   WHERE ID= ?", [req.body.DiaChi,req.body.Tuoi,req.body.Phone,req.body.ID], function (err, result) {
+      if (err) {
+        console.log(err);
+      }
+      console.log("Update");
+      res.send(result);
+    })
+  }
 })
 //----------------------------------------------Tủ
 app.get('/tus', (req, res) => {

@@ -83,7 +83,7 @@ export default class TreeHuman extends React.Component {
                 <Row>
                 {allCard}
                 </Row>
-            <div style={{float:"right"}}>
+            <div style={{float:"right",marginRight: "115px"}}>
             <Pagination current={this.state.current} onChange={this.nextPage}  defaultCurrent={1} total={50} />
             </div>  
             </div>             

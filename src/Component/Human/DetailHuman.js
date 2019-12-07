@@ -11,7 +11,11 @@ export default class DetailHuman extends React.Component {
         this.state = {
             currUser:null,
             childUser:null,
-            allUser:null
+            allUser:null,
+            dataHumanUpdate : {},
+            DiaChi : null,
+            Phone : null,
+            Tuoi : null,
         }
         this.nguoidungService = new nguoidungService();
     }
@@ -42,6 +46,42 @@ export default class DetailHuman extends React.Component {
             return tmp[0].HoTen
         }
         return null;
+    }
+    onChange = (event)=>{
+      var name = event.target.name;
+      var value = event.target.value;
+      var _this =this;
+      this.setState({    
+        [name]:value,
+      })
+      if(this.state.DiaChi){
+        this.state.currUser.DiaChi = this.state.DiaChi;
+      }
+      if(this.state.DiaChi){
+        this.state.currUser.Phone = this.state.Phone;
+      }
+      if(this.state.DiaChi){
+        this.state.currUser.Tuoi = this.state.Tuoi;
+      }
+      this.setState({
+        currUser : _this.state.currUser,
+      })
+    }
+    updateItem = ()=>{
+      console.log(this.state.currUser);
+      this.nguoidungService.registerUser(this.state.currUser).then(function(){
+        notification.success({
+          defaultValue: "topRight",
+          message: "Thêm nhân sự thành công",
+          duration: 4,
+      })
+      })
+    }
+    isAuthor =() =>{
+      if(  this.nguoidungService.getUserCurrent() && this.state.currUser){
+       return this.nguoidungService.getUserCurrent().ID === this.state.currUser.ID;
+      }
+      return false;
     }
     render(){
         const menu = [];
@@ -76,9 +116,11 @@ export default class DetailHuman extends React.Component {
                       <Col span={3}>
                         Địa chỉ:
             </Col>
-            <span>
-                            { this.state.currUser ? this.state.currUser.DiaChi:null}
+                        <Col span={8}>
+                          <span>
+                        {this.isAuthor() ? <span> <Input style={{width:"500px"}} name="DiaChi" type="text" defaultValue={this.state.currUser.DiaChi}  onChange={this.onChange}/> </span> : <span> { this.state.currUser ? this.state.currUser.DiaChi:null} </span> }
                             </span>
+                            </Col>
                     </Form.Item>
                   </Col>
                 </Row>
@@ -89,7 +131,7 @@ export default class DetailHuman extends React.Component {
                         Tuổi :
               </Col>
               <span>
-                            { this.state.currUser ?this.state.currUser.Tuoi:null}
+              {this.isAuthor() ? <span> <Input style={{width:"500px"}} name="Tuoi" type="text" defaultValue={this.state.currUser.Tuoi}  onChange={this.onChange}/> </span> : <span> { this.state.currUser ? this.state.currUser.Tuoi:null} </span> }
                             </span>
                     </Form.Item>
                   </Col>
@@ -99,7 +141,7 @@ export default class DetailHuman extends React.Component {
                         Phone:
             </Col>
             <span>
-                            { this.state.currUser ?this.state.currUser.Phone:null}
+            {this.isAuthor() ? <span> <Input style={{width:"500px"}} name="Phone" type="text" defaultValue={this.state.currUser.Phone}  onChange={this.onChange}/> </span> : <span> { this.state.currUser ? this.state.currUser.Phone:null} </span> }
                             </span>
                     </Form.Item>
                   </Col>
@@ -172,6 +214,9 @@ export default class DetailHuman extends React.Component {
         </Form>
                 </TabPane>
                         </Tabs>
+                <Button type="primary" icon="save" size="default" onClick={this.updateItem}>
+                                        Cập nhật
+              </Button>
             </div>
         ) 
     }

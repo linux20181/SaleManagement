@@ -1,10 +1,15 @@
 import React from 'react';
-import { Form, Input, Row, Col, Select, Table, Button, notification ,Icon,Dropdown ,Menu } from 'antd';
+import { Form, Card, Input, Row, Col,Avatar, Button, notification ,Icon,Dropdown} from 'antd';
 import { Tabs } from 'antd';
 import _ from 'lodash';
 import '../../Asset/Css/common.css';
 import nguoidungService from '../../Service/nguoidung.service';
+import { FaInstagram } from "react-icons/fa";
+import { FaFacebookF } from "react-icons/fa";
+import { FaTwitter } from "react-icons/fa";
+import { IoIosEye } from "react-icons/io";
 const { TabPane } = Tabs;
+const {Meta} = Card;
 export default class DetailHuman extends React.Component {
     constructor(props){
         super(props);
@@ -16,8 +21,10 @@ export default class DetailHuman extends React.Component {
             DiaChi : null,
             Phone : null,
             Tuoi : null,
+            current:1,
         }
         this.nguoidungService = new nguoidungService();
+        this.viewDetail = this.viewDetail.bind(this);
     }
     componentDidMount(){
         var _this = this;
@@ -32,7 +39,7 @@ export default class DetailHuman extends React.Component {
             _this.setState({
                 allUser: _data.data,
             childUser:_.filter(_data.data,function(i){
-                return i.QuanLy === data.ID;
+                return i.QuanLy === data.data[0].ID;
             })
             })
         })
@@ -83,9 +90,42 @@ export default class DetailHuman extends React.Component {
       }
       return false;
     }
+    viewDetail(id){
+      if(id){
+        window.location.replace("/nhansu/chitiet/" + id);
+      }else{
+        window.location.replace("/nhansu/sodonhansu");
+      }
+  }
     render(){
         const menu = [];
-        
+        var _this = this ;
+        console.log(this.state.childUser);
+        var allCard = _.map(this.state.childUser,function(data){
+          return(
+              <div>
+              <Col span={5} style={{margin: "10px 5px 10px 25px" }}>     
+              <Card  bordered={true}
+              style={{fontFamily:"Times New Roman"}}
+               cover={<img alt="example" style={{width:"150px",marginLeft:"65px",marginTop:"10px", border:"solid",borderWidth:"1px",borderColor:"#eeeeee",borderRadius:"50%"}} src="https://galileo-camps.com/wp-content/themes/galileo-learning/library/img/default-person.png" />}
+               actions={[
+                  <Icon type="setting" key="setting" />,
+                  <IoIosEye size="25px"  onClick={_this.viewDetail.bind(this,data.ID)}/>,
+                  <Icon type="ellipsis" key="ellipsis" />,
+                ]}
+             >
+                  <Meta avatar={<Avatar />} title={data.HoTen} description={data.ViTri} />
+          <p style={{marginLeft:"47px",marginTop:"10px",marginBottom:"10px"}}>{data.PhongBan}</p>
+              <div style={{marginLeft:"47px",marginTop:"10px",marginBottom:"10px"}}>
+              <span > <FaInstagram size="20px" /> </span>
+              <span > <FaFacebookF size="20px" /> </span>
+              <span > <FaTwitter size="20px" /> </span>
+              </div>
+              </Card>
+              </Col>                 
+              </div>
+          )
+      })
         return(
             <div>
                 <h1 className = "form-head" style={{ textTransform:"uppercase", color: "#1890ff" }}>ID : <span> {this.state.currUser ? this.state.currUser.HoTen : null}</span> <span style = {{color:"black", width:"10px"}}></span><span style={{float:"right" , width:"20px"}}> 
@@ -148,7 +188,11 @@ export default class DetailHuman extends React.Component {
                 </Row>
               </div>
             </div>
-            <div style={{ backgroundColor: "rgb(246, 240, 241) ", border: "solid", fontFamily: "Segoe UI", borderWidth: "10px", borderColor: "rgb(246, 240, 241)", marginBottom: "10px", marginTop: "10px" }}>Thông tin hệ thống</div>
+            {
+              this.isAuthor()
+              ?
+              <div>
+              <div style={{ backgroundColor: "rgb(246, 240, 241) ", border: "solid", fontFamily: "Segoe UI", borderWidth: "10px", borderColor: "rgb(246, 240, 241)", marginBottom: "10px", marginTop: "10px" }}>Thông tin hệ thống</div>
             <div style={{ border: "solid", borderWidth: "1px", borderColor: "rgb(246, 240, 241) ", borderRadius: "5px" }}>
               <div style={{ marginLeft: "50px", marginTop: "15px" }}>
                 <Row>
@@ -210,13 +254,27 @@ export default class DetailHuman extends React.Component {
                 </Row>
               </div>
             </div>
-          </div>
+                </div>
+                :null
+                }
+        </div>
         </Form>
-                </TabPane>
-                        </Tabs>
+        { this.isAuthor()
+        ?
+             <div>
                 <Button type="primary" icon="save" size="default" onClick={this.updateItem}>
                                         Cập nhật
-              </Button>
+                </Button>
+              </div>
+              :null
+         }
+                </TabPane>
+                <TabPane tab={<span><Icon type="folder-open" /> Quản lý </span>} key="114">
+                <div>
+                  {allCard}
+                  </div>
+                </TabPane>
+                        </Tabs>
             </div>
         ) 
     }

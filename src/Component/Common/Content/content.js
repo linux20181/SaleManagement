@@ -13,16 +13,33 @@ import logo from '../../../Asset/Image/logo192.png'
 import * as APP_STATE from '../../../router';
 const { SubMenu } = Menu;
 const { Content, Sider, Header } = Layout;
+function change_alias(alias) {
+    var str = alias;
+    str = str.toLowerCase();
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g,"a"); 
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g,"e"); 
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g,"i"); 
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g,"o"); 
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g,"u"); 
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g,"y"); 
+    str = str.replace(/đ/g,"d");
+    str = str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g," ");
+    str = str.replace(/ + /g," ");
+    str = str.trim(); 
+    return str;
+}
 function convetHoTen(str){
     var arr = [];
     var _str = "";
+    
     if(str){
-       arr = _.cloneDeep(_.split(str," "));
+       arr = _.cloneDeep(_.split(change_alias(str)," "));
     }
+    arr =_.compact(arr);
     _.forEach(arr,function(i){
         _str += i[0];
     })
-    return _str;
+    return _str.toUpperCase();
 }
 export default class Contents extends React.Component {
     constructor(props) {
@@ -149,8 +166,7 @@ export default class Contents extends React.Component {
                                         </Menu.Item>
                                         <Menu.Item key="2"><Link to={APP_STATE.APP_STATE.NHANSU.TREEHUMAN.url}>Sơ đồ nhân sự</Link></Menu.Item>
                                     { this.isAdmin() ? <Menu.Item key="11"><Link to={APP_STATE.APP_STATE.NHANSU.ADDHUMAN.url}>Bổ sung nhân sự</Link></Menu.Item> : null}
-                                        <Menu.Item key="3">Phân quyền</Menu.Item>
-                                        <Menu.Item key="4">Chi tiết</Menu.Item>
+                                        <Menu.Item key="4"><Link to={APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.url}>Đăng ký nghỉ</Link></Menu.Item>
                                     </SubMenu>
                                     <SubMenu
                                         key="sub2"
@@ -222,23 +238,24 @@ export default class Contents extends React.Component {
                                 </Menu>
                             </Sider>                     
                             <Content style={{ padding: '0 24px', minHeight: 280 }}>
-                                <Route exact path={APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.url} component = {APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.component} />
+                            <Route exact path={APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.url} component = {APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.component} />
+                            <Route exact path={APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.url} component = {APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.component} />
                             <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.url} component = {APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.component} /> 
                             <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.url} component = {APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.component} /> 
                             <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.TAOMOI.url} component = {APP_STATE.APP_STATE.DANGKYMUON.TAOMOI.component} /> 
                             <Route exact path={APP_STATE.APP_STATE.TAILIEU.DANHSACHTAILIEU.url} component = {APP_STATE.APP_STATE.TAILIEU.DANHSACHTAILIEU.component} />                           
-                                <Route exact path={APP_STATE.APP_STATE.HOME.url} component = {APP_STATE.APP_STATE.HOME.component} />                               
+                            <Route exact path={APP_STATE.APP_STATE.HOME.url} component = {APP_STATE.APP_STATE.HOME.component} />                               
                             <Route exact path={APP_STATE.APP_STATE.HOSO.DANHSACHHOSO.url} component={APP_STATE.APP_STATE.HOSO.DANHSACHHOSO.component} />     
                             <Route exact path={APP_STATE.APP_STATE.HOSO.CHITIETHOSO.url} component={APP_STATE.APP_STATE.HOSO.CHITIETHOSO.component} />
-                                <Route exact path={APP_STATE.APP_STATE.HOSO.TAOMOIHOSO.url} component={APP_STATE.APP_STATE.HOSO.TAOMOIHOSO.component} />             
-                                <Route exact path={APP_STATE.APP_STATE.NHANSU.ADDHUMAN.url} component={APP_STATE.APP_STATE.NHANSU.ADDHUMAN.component} />
-                                <Route exact path={APP_STATE.APP_STATE.NHANSU.TREEHUMAN.url} component={APP_STATE.APP_STATE.NHANSU.TREEHUMAN.component} />
-                                <Route exact path={APP_STATE.APP_STATE.SETTING.TU.url} component={APP_STATE.APP_STATE.SETTING.TU.component} />
-                                <Route exact path={APP_STATE.APP_STATE.SETTING.PHONGBAN.url} component={APP_STATE.APP_STATE.SETTING.PHONGBAN.component} />
-                                <Route exact path={APP_STATE.APP_STATE.SETTING.DONVI.url} component={APP_STATE.APP_STATE.SETTING.DONVI.component} />
-                                <Route exact path={APP_STATE.APP_STATE.SETTING.KHO.url} component={APP_STATE.APP_STATE.SETTING.KHO.component} />
-                                <Route exact path={APP_STATE.APP_STATE.SETTING.VUNG.url} component={APP_STATE.APP_STATE.SETTING.VUNG.component} />
-                                <Route exact path={APP_STATE.APP_STATE.SETTING.LOAIHOSO.url} component={APP_STATE.APP_STATE.SETTING.LOAIHOSO.component} />
+                            <Route exact path={APP_STATE.APP_STATE.HOSO.TAOMOIHOSO.url} component={APP_STATE.APP_STATE.HOSO.TAOMOIHOSO.component} />             
+                            <Route exact path={APP_STATE.APP_STATE.NHANSU.ADDHUMAN.url} component={APP_STATE.APP_STATE.NHANSU.ADDHUMAN.component} />
+                            <Route exact path={APP_STATE.APP_STATE.NHANSU.TREEHUMAN.url} component={APP_STATE.APP_STATE.NHANSU.TREEHUMAN.component} />
+                            <Route exact path={APP_STATE.APP_STATE.SETTING.TU.url} component={APP_STATE.APP_STATE.SETTING.TU.component} />
+                            <Route exact path={APP_STATE.APP_STATE.SETTING.PHONGBAN.url} component={APP_STATE.APP_STATE.SETTING.PHONGBAN.component} />
+                            <Route exact path={APP_STATE.APP_STATE.SETTING.DONVI.url} component={APP_STATE.APP_STATE.SETTING.DONVI.component} />
+                            <Route exact path={APP_STATE.APP_STATE.SETTING.KHO.url} component={APP_STATE.APP_STATE.SETTING.KHO.component} />
+                            <Route exact path={APP_STATE.APP_STATE.SETTING.VUNG.url} component={APP_STATE.APP_STATE.SETTING.VUNG.component} />
+                            <Route exact path={APP_STATE.APP_STATE.SETTING.LOAIHOSO.url} component={APP_STATE.APP_STATE.SETTING.LOAIHOSO.component} />
                             </Content>
                         </Layout>
                     </Content>

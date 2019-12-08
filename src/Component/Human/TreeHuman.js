@@ -80,6 +80,8 @@ export default class TreeHuman extends React.Component {
         })
         return (
             <div>
+                  <h1 className = "form-head" style={{marginLeft:"20px", textTransform:"uppercase", color: "#1890ff" }}> Sơ đồ nhân sự                 
+                   </h1>
                 <Row>
                 {allCard}
                 </Row>

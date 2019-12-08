@@ -46,6 +46,9 @@ class AddHuman extends React.Component {
       if(!data.GroupOfUser){
         validates.push("Group là trường bắt buộc");
       }
+      if(!data.PhongBan){
+        validates.push("Phòng ban là trường bắt buộc");
+      }
       return validates;
     }
       return null;
@@ -116,6 +119,14 @@ class AddHuman extends React.Component {
       <Option value="2">2</Option>,
       <Option value="3">3</Option>,
       <Option value="4">4</Option>,
+
+  ]
+  const optionGroup = [
+    <Option value="SM_LanhDao">SM_LanhDao</Option>,
+      <Option value="SM_Admin">SM_Admin</Option>,
+      <Option value="SM_ThuThu">SM_ThuThu</Option>,
+      <Option value="SM_QuanLy">SM_QuanLy</Option>,
+      <Option value="SM_NhanVien">SM_NhanVien</Option>,
 
   ]
     if (this.state.validateData){
@@ -304,9 +315,9 @@ class AddHuman extends React.Component {
                         {getFieldDecorator('GroupOfUser', {
                           rules: [{ required: true, message: 'Please input your group!' }],
                         })(
-                          <Input
-                            style={{ width: '400px' }}
-                          />,
+                          <Select style={{ width: '400px' }}>
+                                  {optionGroup}
+                                </Select>,
                         )}
                       </span>
                     </Form.Item>

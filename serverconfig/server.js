@@ -1,25 +1,18 @@
 const express = require('express');
-var mysql = require('mysql');
-var bodyParser = require('body-parser');
+const _mysql = require('./Data/connectionn');
 const cors = require('cors');
 const app = express();
+const saltRounds = 10;
 var bcrypt = require('bcrypt');
+var bodyParser = require('body-parser');
 var jwt = require('jsonwebtoken');
 var SendMail = require('./Mail/SendMail');
-const saltRounds = 10;
 const corsOptions = {
   origin: "*",
   methods: ['GET', 'DELETE', 'POST'],
 }
 const port = 3097;
-//connect database .
-var connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'password',
-  database: 'sale_management'
-});
-
+var connection = _mysql.connection();
 app.use(cors(corsOptions));
 app.use(bodyParser.json())
 connection.connect(function (err) {
@@ -159,12 +152,14 @@ app.get('/hosotailieus', (req, res) => {
     res.send(results);
   })
 })
+
 app.get('/hosotailieus/:id', (req, res) => {
   var id = req.params.id;
   connection.query("Select * from hosotailieus where id = " + id, function (error, result) {
     res.send(result);
   })
 })
+
 app.delete('/hosotailieus/:id', (req, res) => {
   var id = JSON.stringify(req.params.id);
   console.log(id);
@@ -173,6 +168,7 @@ app.delete('/hosotailieus/:id', (req, res) => {
     res.send(results)
   });
 })
+
 app.post('/api/hosotailieus', (req, res) => {
   var values = [
     [req.body.NgayTao, req.body.SoHieuHoSo, req.body.TenHoSo, req.body.LoaiHoSoId, req.body.MasterData, req.body.DonViSoHuuId, req.body.PhongBanSoHuuId, req.body.NamHoSo, req.body.GhiChu, req.body.VungId, req.body.KhoId, req.body.TuId, req.body.Author, req.body.id, req.body.TinhTrangMuonTra]
@@ -206,12 +202,14 @@ app.get('/nguoidungs', (req, res) => {
     res.send(results);
   })
 })
+
 app.get('/nguoidungs/:id', (req, res) => {
   var id = req.params.id;
   connection.query("Select * from users where ID = " + id, function (error, result) {
     res.send(result);
   })
 })
+
 app.post('/api/nguoidungs', (req, res) => {
   var _res = res;
   connection.query('SELECT * FROM users WHERE Email= ' + JSON.stringify(req.body.Email), function (err, results) {

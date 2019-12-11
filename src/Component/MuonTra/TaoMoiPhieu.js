@@ -24,10 +24,18 @@ const {TextArea} = Input;
     }
     sendRequest(){
       var _this = this;
+      var HoSoDaChoMuon = null;
       var data = this.props.form.getFieldsValue();
       data.ThoiGianTra = this.convertTime(data.ThoiGianTra._d);
       data.ThoiGianMuon = this.convertTime(data.ThoiGianMuon._d);
       data.TrangThai = "Chờ xử lý";
+      if(data.TenHoSoMuonId){
+        HoSoDaChoMuon = _.filter(_this.state.dataSourceHoSo,function(i){
+          return i.IdHoSo === data.TenHoSoMuonId;
+        })[0];
+        data.TenHoSoDaChoMuon = HoSoDaChoMuon.TenHoSo;
+      }
+      
       this.phieumuonService.saveItem(data).then(function(){
         notification.success({
           defaultValue: "topRight",
@@ -43,6 +51,10 @@ const {TextArea} = Input;
         MucDichMuon:null,
         TenHoSoMuonId :null,
         
+      })
+      HoSoDaChoMuon.TinhTrangMuonTra = "Đã cho mượn";
+      _this.hosotailieuService.saveItem(HoSoDaChoMuon).then(function(){
+
       })
       })
     }

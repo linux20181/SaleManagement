@@ -4,12 +4,13 @@ import { Table,Dropdown,Icon,Menu,notification} from 'antd';
 import { IoIosFlag } from "react-icons/io";
 import _ from 'lodash';
 import hosotailieuService from '../../Service/hosotailieu.service';
+import nguoidungService from '../../Service/nguoidung.service';
 import vungService from '../../Service/vung.service';
 import khoService from '../../Service/kho.service';
 import tuService from '../../Service/tu.service';
 import phieumuonService from '../../Service/phieumuon.service';
 function convertTime(date) {
-    var stringDate = date.getFullYear() + "-" + JSON.stringify(parseInt(date.getMonth()) + 1) + "-" + date.getDate() + " " + date.toLocaleTimeString().substring(0, date.toLocaleTimeString().length - 2);
+    var stringDate = date.getFullYear() + "-" + JSON.stringify(parseInt(date.getMonth()) + 1) + "-" + date.getDate() ;
     return stringDate
   }
   function convertTimePay(date) {
@@ -74,6 +75,7 @@ export default class DanhSachHoSo extends React.Component {
               HoSo: null,
               recordBorrow:null
           }
+          this.nguoidungService = new nguoidungService();
           this.phieumuonService = new phieumuonService();
           this.hosotailieuService = new hosotailieuService();
           this.vungService = new vungService();
@@ -107,8 +109,8 @@ export default class DanhSachHoSo extends React.Component {
         this.props.history.push("/hosotailieu/" + record.id);
       }
       sendBorrow(){
-         // var _this = this ; 
-        
+         var _this = this ; 
+            var CloneHoSo = this.state.HoSo;
          if(this.state.HoSo.TinhTrangMuonTra !=="Lưu kho"){
             notification.error(
                 {
@@ -123,9 +125,14 @@ export default class DanhSachHoSo extends React.Component {
             notification.success({
                 defaultValue: "topRight",
                 message: "Đăng ký mượn thành công !",
+                description :" Thông tin chi tiết xin vui lòng xem trong Email .",
                 duration: 4,
             }
-            );  
+            ); 
+            CloneHoSo.TinhTrangMuonTra = "Đã cho mượn";
+            _this.hosotailieuService.saveItem(CloneHoSo).then(function(){
+
+            })
           })
       }
       handleVisibleChange(record){
@@ -138,11 +145,12 @@ export default class DanhSachHoSo extends React.Component {
           data={
               MaPhieuMuon: "PM"+"-" + record.IdHoSo +  new Date().toLocaleTimeString().substring(0, new Date().toLocaleTimeString().length - 2),
               TenPhieuMuon:"Phiếu mượn"+"-"+record.IdHoSo + new Date().toLocaleTimeString().substring(0, new Date().toLocaleTimeString().length - 2),
-              Author:record.Author,
+              Author:_this.nguoidungService.getUserCurrent().Email,
               ThoiGianMuon: convertTime(new Date()),
               ThoiGianTra: convertTimePay(new Date()),
               TenHoSoMuonId : record.IdHoSo,
               TrangThai:'Chờ xử lý',
+              TenHoSoDaChoMuon: record.TenHoSo
           }
            data.MaPhieuMuon = data.MaPhieuMuon.replace(":","");
            data.TenPhieuMuon = data.TenPhieuMuon.replace(":","");

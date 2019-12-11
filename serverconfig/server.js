@@ -1,5 +1,5 @@
 const express = require('express');
-const _mysql = require('./Data/connectionn');
+const _mysql = require('./Data/connection');
 const cors = require('cors');
 const app = express();
 const saltRounds = 10;

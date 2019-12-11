@@ -3,15 +3,18 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+var nodemailer = require('nodemailer');
 var bcrypt = require('bcrypt');
 var cookie = require('cookie');
 var jwt = require('jsonwebtoken');
+var SendMail = require('./Mail/SendMail');
 const saltRounds = 10;
 const corsOptions = {
   origin: "*",
   methods: ['GET', 'DELETE', 'POST'],
 }
 const port = 3097;
+//connect database .
 var connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -28,59 +31,65 @@ connection.connect(function (err) {
   }
 });
 // replace chuỗi str có ký tự str1 thanh str2 . Do  replace () chỉ thay the được 1 ký tự sau một lần gọi . 
-function replaceString(str,str1,str2){ 
+function replaceString(str, str1, str2) {
   var cloneStr = str;
-  for( let i = 0; i < str.length ; i++){
-    cloneStr = cloneStr.replace(str1,str2);
+  for (let i = 0; i < str.length; i++) {
+    cloneStr = cloneStr.replace(str1, str2);
   }
   return cloneStr;
 }
 //------------------------------------------Lịch sử
-app.get('/logs',(req,res)=>{
-  connection.query("Select * from logs",function(error,result){
+app.get('/logs', (req, res) => {
+  connection.query("Select * from logs", function (error, result) {
     res.send(result);
   })
 })
-app.post('/api/logs',(req,res)=>{
-   var values = [
-    [req.body.Author, req.body.NoiDung,req.body.NgayTao,req.body.GuidId]
+app.post('/api/logs', (req, res) => {
+  var values = [
+    [req.body.Author, req.body.NoiDung, req.body.NgayTao, req.body.GuidId]
   ];
-    connection.query("INSERT INTO logs (Author,NoiDung,NgayTao,GuidId) VALUES ?", [values], function (err,result) {
-      if (err) {
-        console.log(err);
-      }
-      res.send(result);
-    })
+  connection.query("INSERT INTO logs (Author,NoiDung,NgayTao,GuidId) VALUES ?", [values], function (err, result) {
+    if (err) {
+      console.log(err);
+    }
+    res.send(result);
+  })
 
 })
 //------------------------------------------Phieu Muon 
-app.get('/phieumuons',(req,res)=>{
-  connection.query("Select * from phieumuons ",function(error,results){
+app.get('/phieumuons', (req, res) => {
+  connection.query("Select * from phieumuons ", function (error, results) {
     if (error) throw error;
     res.send(results);
   })
 })
-app.get('/phieumuons/:id',(req,res)=>{
+app.get('/phieumuons/:id', (req, res) => {
   var id = req.params.id;
-  connection.query("Select * from phieumuons where IdPhieuMuon = " + id ,function(error,result){
+  connection.query("Select * from phieumuons where IdPhieuMuon = " + id, function (error, result) {
     res.send(result);
   })
 })
-app.post('/api/phieumuons',(req,res)=>{
+app.post('/api/phieumuons', (req, res) => {
   console.log(req.body);
   var values = [
-    [req.body.MaPhieuMuon,req.body.TenPhieuMuon,req.body.ThoiGianMuon,req.body.ThoiGianTra,req.body.MucDichMuon,req.body.TenHoSoMuonId,req.body.TrangThai,req.body.Author]
+    [req.body.MaPhieuMuon, req.body.TenPhieuMuon, req.body.ThoiGianMuon, req.body.ThoiGianTra, req.body.MucDichMuon, req.body.TenHoSoMuonId, req.body.TrangThai, req.body.Author]
   ];
-  if(req.body.IdPhieuMuon === undefined){
-    
-    connection.query("INSERT INTO phieumuons (MaPhieuMuon,TenPhieuMuon,ThoiGianMuon,ThoiGianTra,MucDichMuon,TenHoSoMuonId,TrangThai,Author) VALUES ?", [values], function (err,result) {
+  if (req.body.IdPhieuMuon === undefined) {
+    var content = "<h1>Xác nhận mượn tài liệu</h1> \n " +
+        "<p>Kính thưa ông/bà </p> \n" +
+        "<p> Ông/ bà đã mượn thành công hồ sơ có tên : <b>" + req.body.TenHoSoDaChoMuon + "</b> , vào ngày " +req.body.ThoiGianMuon +  ", hạn trả vào ngày "+req.body.ThoiGianTra +"</p> \n" +
+        "<p>Hết ngày "+ req.body.ThoiGianTra +" nếu ống bà không hoàn trả lại hồ sơ . Chúng tôi sẽ xử lý theo nội quy mượn trả .</p> \n" +
+        " <p> Xin chân thành cảm ơn ông/bà !!!</p>"
+    connection.query("INSERT INTO phieumuons (MaPhieuMuon,TenPhieuMuon,ThoiGianMuon,ThoiGianTra,MucDichMuon,TenHoSoMuonId,TrangThai,Author) VALUES ?", [values], function (err, result) {
       if (err) {
         console.log(err);
       }
+
+      SendMail.sendMail(req.body.Author, 'Xác nhận mượn tài liệu', content);
       res.send(result);
     })
-  }else{
-    connection.query("UPDATE phieumuons SET  MaPhieuMuon = ? , TenPhieuMuon = ? , ThoiGianMuon = ? ,ThoiGianTra = ? , MucDichMuon = ? ,TenHoSoMuonId = ? ,TrangThai = ? , Author = ? Where IdPhieuMuon = ?",[req.body.MaPhieuMuon,req.body.TenPhieuMuon,req.body.ThoiGianMuon,req.body.ThoiGianTra,req.body.MucDichMuon,req.body.TenHoSoMuonId,req.body.TrangThai,req.body.Author,req.body.IdPhieuMuon], function (err,result) {
+  } else {
+    connection.query("UPDATE phieumuons SET  MaPhieuMuon = ? , TenPhieuMuon = ? , ThoiGianMuon = ? ,ThoiGianTra = ? , MucDichMuon = ? ,TenHoSoMuonId = ? ,TrangThai = ? , Author = ? Where IdPhieuMuon = ?", [req.body.MaPhieuMuon, req.body.TenPhieuMuon, req.body.ThoiGianMuon, req.body.ThoiGianTra, req.body.MucDichMuon, req.body.TenHoSoMuonId, req.body.TrangThai, req.body.Author, req.body.IdPhieuMuon], function (err, result) {
       if (err) {
         console.log(err);
       }
@@ -97,21 +106,21 @@ app.delete('/phieumuons/:id', (req, res) => {
   });
 })
 // -----------------------------------------Tài Liệu
-app.post('/api/tailieus',(req,res)=>{
+app.post('/api/tailieus', (req, res) => {
   console.log(req.body);
   var values = [
-    [req.body.TenTaiLieu,req.body.SoHieuTaiLieu,req.body.HoSoTaiLieuId,req.body.LoaiTaiLieuId,req.body.DonViBanHanhId, req.body.DangVanBan,req.body.PhongBanPheDuyetId,req.body.NgayBanHanh,req.body.NgayHetHan,req.body.GhiChuTL, req.body.TinhTrangMuonTra,req.body.MaTaiLieuVanThu,req.body.SoTrang,req.body.CapMatTL,req.body.NgayTao]
+    [req.body.TenTaiLieu, req.body.SoHieuTaiLieu, req.body.HoSoTaiLieuId, req.body.LoaiTaiLieuId, req.body.DonViBanHanhId, req.body.DangVanBan, req.body.PhongBanPheDuyetId, req.body.NgayBanHanh, req.body.NgayHetHan, req.body.GhiChuTL, req.body.TinhTrangMuonTra, req.body.MaTaiLieuVanThu, req.body.SoTrang, req.body.CapMatTL, req.body.NgayTao]
   ];
-  if(req.body.IdTaiLieu === undefined){
-    
-    connection.query("INSERT INTO tailieus (TenTaiLieu,SoHieuTaiLieu,HoSoTaiLieuId,LoaiTaiLieuId,DonViBanHanhId,DangVanBan,PhongBanPheDuyetId,NgayBanHanh,NgayHetHan,GhiChuTL,TinhTrangMuonTra,MaTaiLieuVanThu,SoTrang,CapMatTL,NgayTao) VALUES ?", [values], function (err,result) {
+  if (req.body.IdTaiLieu === undefined) {
+
+    connection.query("INSERT INTO tailieus (TenTaiLieu,SoHieuTaiLieu,HoSoTaiLieuId,LoaiTaiLieuId,DonViBanHanhId,DangVanBan,PhongBanPheDuyetId,NgayBanHanh,NgayHetHan,GhiChuTL,TinhTrangMuonTra,MaTaiLieuVanThu,SoTrang,CapMatTL,NgayTao) VALUES ?", [values], function (err, result) {
       if (err) {
         console.log(err);
       }
       res.send(result);
     })
-  }else{
-    connection.query("UPDATE tailieus SET  TenTaiLieu = ? , SoHieuTaiLieu = ? , HoSoTaiLieuId = ? ,LoaiTaiLieuId = ? , DonViBanHanhId = ? ,DangVanBan = ? ,PhongBanPheDuyetId = ? , NgayBanHanh = ? , NgayHetHan = ? , GhiChuTL = ? , TinhTrangMuonTra = ? , MaTaiLieuVanThu = ? , SoTrang = ? ,CapMatTL = ? , NgayTao = ? Where IdTaiLieu = ?", [req.body.TenTaiLieu,req.body.SoHieuTaiLieu,req.body.HoSoTaiLieuId,req.body.LoaiTaiLieuId,req.body.DonViBanHanhId, req.body.DangVanBan,req.body.PhongBanPheDuyetId,req.body.NgayBanHanh, req.body.NgayHetHan,req.body.GhiChuTL, req.body.TinhTrangMuonTra,req.body.MaTaiLieuVanThu,req.body.SoTrang,req.body.CapMatTL,req.body.NgayTao,req.body.IdTaiLieu], function (err,result) {
+  } else {
+    connection.query("UPDATE tailieus SET  TenTaiLieu = ? , SoHieuTaiLieu = ? , HoSoTaiLieuId = ? ,LoaiTaiLieuId = ? , DonViBanHanhId = ? ,DangVanBan = ? ,PhongBanPheDuyetId = ? , NgayBanHanh = ? , NgayHetHan = ? , GhiChuTL = ? , TinhTrangMuonTra = ? , MaTaiLieuVanThu = ? , SoTrang = ? ,CapMatTL = ? , NgayTao = ? Where IdTaiLieu = ?", [req.body.TenTaiLieu, req.body.SoHieuTaiLieu, req.body.HoSoTaiLieuId, req.body.LoaiTaiLieuId, req.body.DonViBanHanhId, req.body.DangVanBan, req.body.PhongBanPheDuyetId, req.body.NgayBanHanh, req.body.NgayHetHan, req.body.GhiChuTL, req.body.TinhTrangMuonTra, req.body.MaTaiLieuVanThu, req.body.SoTrang, req.body.CapMatTL, req.body.NgayTao, req.body.IdTaiLieu], function (err, result) {
       if (err) {
         console.log(err);
       }
@@ -119,15 +128,15 @@ app.post('/api/tailieus',(req,res)=>{
     })
   }
 })
-app.get('/tailieus',(req,res)=>{
-  connection.query("Select * from tailieus ",function(error,results){
+app.get('/tailieus', (req, res) => {
+  connection.query("Select * from tailieus ", function (error, results) {
     if (error) throw error;
     res.send(results);
   })
 })
-app.get('/tailieus/:id',(req,res)=>{
+app.get('/tailieus/:id', (req, res) => {
   var id = req.params.id;
-  connection.query("Select * from tailieus where IdTaiLieu = " + id ,function(error,result){
+  connection.query("Select * from tailieus where IdTaiLieu = " + id, function (error, result) {
     res.send(result);
   })
 })
@@ -140,21 +149,21 @@ app.delete('/tailieus/:id', (req, res) => {
   });
 })
 //------------------------------------------Hồ sơ tài liệu
-app.get('/hosotailieus/all',(req,res)=>{
-  connection.query("Select * from hosotailieus ",function(error,results){
+app.get('/hosotailieus/all', (req, res) => {
+  connection.query("Select * from hosotailieus ", function (error, results) {
     if (error) throw error;
     res.send(results);
   })
 })
-app.get('/hosotailieus',(req,res)=>{
-  connection.query("SELECT * from hosotailieus JOIN loaihosos on hosotailieus.LoaiHoSoId = loaihosos.IdLoaiHoSo JOIN donvis on hosotailieus.DonViSoHuuId = donvis.IdDonVi JOIN phongbans on phongbans.IdPhongBan = hosotailieus.PhongBanSoHuuId ",function(error,results){
+app.get('/hosotailieus', (req, res) => {
+  connection.query("SELECT * from hosotailieus JOIN loaihosos on hosotailieus.LoaiHoSoId = loaihosos.IdLoaiHoSo JOIN donvis on hosotailieus.DonViSoHuuId = donvis.IdDonVi JOIN phongbans on phongbans.IdPhongBan = hosotailieus.PhongBanSoHuuId ", function (error, results) {
     if (error) throw error;
     res.send(results);
   })
 })
-app.get('/hosotailieus/:id',(req,res)=>{
+app.get('/hosotailieus/:id', (req, res) => {
   var id = req.params.id;
-  connection.query("Select * from hosotailieus where id = " + id ,function(error,result){
+  connection.query("Select * from hosotailieus where id = " + id, function (error, result) {
     res.send(result);
   })
 })
@@ -166,12 +175,12 @@ app.delete('/hosotailieus/:id', (req, res) => {
     res.send(results)
   });
 })
-app.post('/api/hosotailieus',(req,res)=>{
+app.post('/api/hosotailieus', (req, res) => {
   var values = [
-    [req.body.NgayTao,req.body.SoHieuHoSo, req.body.TenHoSo,req.body.LoaiHoSoId,req.body.MasterData, req.body.DonViSoHuuId,req.body.PhongBanSoHuuId,req.body.NamHoSo, req.body.GhiChu,req.body.VungId,req.body.KhoId, req.body.TuId,req.body.Author,req.body.id,req.body.TinhTrangMuonTra]
+    [req.body.NgayTao, req.body.SoHieuHoSo, req.body.TenHoSo, req.body.LoaiHoSoId, req.body.MasterData, req.body.DonViSoHuuId, req.body.PhongBanSoHuuId, req.body.NamHoSo, req.body.GhiChu, req.body.VungId, req.body.KhoId, req.body.TuId, req.body.Author, req.body.id, req.body.TinhTrangMuonTra]
   ];
   if (req.body.IdHoSo === undefined) {
-    connection.query("INSERT INTO hosotailieus (NgayTao,SoHieuHoSo,TenHoSo,LoaiHoSoId,MasterData,DonViSoHuuId,PhongBanSoHuuId,NamHoSo,GhiChu,VungId,KhoId,TuId,Author,id,TinhTrangMuonTra) VALUES ?", [values], function (err,result) {
+    connection.query("INSERT INTO hosotailieus (NgayTao,SoHieuHoSo,TenHoSo,LoaiHoSoId,MasterData,DonViSoHuuId,PhongBanSoHuuId,NamHoSo,GhiChu,VungId,KhoId,TuId,Author,id,TinhTrangMuonTra) VALUES ?", [values], function (err, result) {
       if (err) {
         console.log(err);
       }
@@ -179,7 +188,7 @@ app.post('/api/hosotailieus',(req,res)=>{
     })
   }
   if (req.body.IdHoSo) {
-    connection.query("UPDATE hosotailieus SET LoaiHoSoId = ? , MasterData = ? , DonViSoHuuId = ? ,PhongBanSoHuuId = ? , NamHoSo = ? ,GhiChu = ? , VungId = ? , KhoId = ? , TuId = ? , Author = ?,TinhTrangMuonTra = ? WHERE IdHoSo= ?",[req.body.LoaiHoSoId,req.body.MasterData, req.body.DonViSoHuuId,req.body.PhongBanSoHuuId,req.body.NamHoSo, req.body.GhiChu,req.body.VungId,req.body.KhoId, req.body.TuId,req.body.Author,req.body.TinhTrangMuonTra,req.body.IdHoSo,], function (err, result) {
+    connection.query("UPDATE hosotailieus SET LoaiHoSoId = ? , MasterData = ? , DonViSoHuuId = ? ,PhongBanSoHuuId = ? , NamHoSo = ? ,GhiChu = ? , VungId = ? , KhoId = ? , TuId = ? , Author = ?,TinhTrangMuonTra = ? WHERE IdHoSo= ?", [req.body.LoaiHoSoId, req.body.MasterData, req.body.DonViSoHuuId, req.body.PhongBanSoHuuId, req.body.NamHoSo, req.body.GhiChu, req.body.VungId, req.body.KhoId, req.body.TuId, req.body.Author, req.body.TinhTrangMuonTra, req.body.IdHoSo, ], function (err, result) {
       if (err) {
         console.log(err);
       }
@@ -189,48 +198,57 @@ app.post('/api/hosotailieus',(req,res)=>{
   }
 })
 // -----------------------------------------Nguoi Dung
-app.get('/nguoidungs',(req,res)=>{ 
+app.get('/nguoidungs', (req, res) => {
   var _query = " ";
-  if(req._parsedUrl.query){
-     _query =  replaceString(req._parsedUrl.query,"%20"," ");
+  if (req._parsedUrl.query) {
+    _query = replaceString(req._parsedUrl.query, "%20", " ");
   }
-  connection.query("Select * from users " + _query ,function(error,results){
+  connection.query("Select * from users " + _query, function (error, results) {
     if (error) throw error;
     res.send(results);
   })
 })
-app.get('/nguoidungs/:id',(req,res)=>{
+app.get('/nguoidungs/:id', (req, res) => {
   var id = req.params.id;
-  connection.query("Select * from users where ID = " + id ,function(error,result){
+  connection.query("Select * from users where ID = " + id, function (error, result) {
     res.send(result);
   })
 })
 app.post('/api/nguoidungs', (req, res) => {
   var _res = res;
-connection.query('SELECT * FROM users WHERE Email= ' + JSON.stringify(req.body.Email) ,function(err,results){
-  console.log(results);
-  if (err) { throw err; }
-  if(!err){
-    bcrypt.compare(req.body.MatKhau,results[0].MatKhau).then(
-      function(res){
-        if(res){
-          var token = jwt.sign({Email:req.body.Email,MatKhau:req.body.MatKhau},"Cu")
-          _res.json({token:token,
-            result:results[0]});
-          }else{
-            _res.json({token:null})
+  connection.query('SELECT * FROM users WHERE Email= ' + JSON.stringify(req.body.Email), function (err, results) {
+    console.log(results);
+    if (err) {
+      throw err;
+    }
+    if (!err) {
+      bcrypt.compare(req.body.MatKhau, results[0].MatKhau).then(
+        function (res) {
+          if (res) {
+            var token = jwt.sign({
+              Email: req.body.Email,
+              MatKhau: req.body.MatKhau
+            }, "Cu")
+            _res.json({
+              token: token,
+              result: results[0]
+            });
+          } else {
+            _res.json({
+              token: null
+            })
           }
-      }
-    )
-  }
+        }
+      )
+    }
+  })
 })
-})
-app.post('/register/nguoidungs',(req,res) => {
+app.post('/register/nguoidungs', (req, res) => {
   var MatKhau = bcrypt.hashSync(req.body.MatKhau, saltRounds)
   var values = [
-    [req.body.HoTen,req.body.Tuoi,req.body.Email,MatKhau,req.body.ViTri,req.body.Phone,req.body.GroupOfUser,req.body.PhongBan,req.body.Cap,req.body.DiaChi,req.body.QuanLy]
+    [req.body.HoTen, req.body.Tuoi, req.body.Email, MatKhau, req.body.ViTri, req.body.Phone, req.body.GroupOfUser, req.body.PhongBan, req.body.Cap, req.body.DiaChi, req.body.QuanLy]
   ];
-  if (req.body.ID === undefined) {  
+  if (req.body.ID === undefined) {
     connection.query("INSERT INTO users (HoTen,Tuoi,Email,MatKhau,ViTri,Phone,GroupOfUser,PhongBan,Cap,DiaChi,QuanLy) VALUES ?", [values], function (err, result) {
       if (err) {
         console.log(err);
@@ -240,7 +258,7 @@ app.post('/register/nguoidungs',(req,res) => {
     })
   }
   if (req.body.ID) {
-    connection.query("UPDATE users SET DiaChi= ? , Tuoi = ? , Phone = ?   WHERE ID= ?", [req.body.DiaChi,req.body.Tuoi,req.body.Phone,req.body.ID], function (err, result) {
+    connection.query("UPDATE users SET DiaChi= ? , Tuoi = ? , Phone = ?   WHERE ID= ?", [req.body.DiaChi, req.body.Tuoi, req.body.Phone, req.body.ID], function (err, result) {
       if (err) {
         console.log(err);
       }
@@ -263,11 +281,11 @@ app.delete('/tus/:id', (req, res) => {
     if (error) throw error;
     res.send(results)
   });
-}) 
+})
 app.post('/api/tus', (req, res) => {
   console.log(req.body.IdPhongBan);
   var values = [
-    [req.body.TenTu, req.body.MaTu,req.body.KhoId]
+    [req.body.TenTu, req.body.MaTu, req.body.KhoId]
   ];
   if (req.body.IdTu === undefined) {
     connection.query("INSERT INTO tus (TenTu,MaTu,KhoId) VALUES ?", [values], function (err, result) {
@@ -279,7 +297,7 @@ app.post('/api/tus', (req, res) => {
     })
   }
   if (req.body.IdTu) {
-    connection.query("UPDATE tus SET TenTu= ? , MaTu = ? , KhoId = ?  WHERE IdTu= ?", [req.body.TenTu, req.body.MaTu, req.body.KhoId,req.body.IdTu], function (err, result) {
+    connection.query("UPDATE tus SET TenTu= ? , MaTu = ? , KhoId = ?  WHERE IdTu= ?", [req.body.TenTu, req.body.MaTu, req.body.KhoId, req.body.IdTu], function (err, result) {
       if (err) {
         console.log(err);
       }
@@ -308,7 +326,7 @@ app.delete('/phongbans/:id', (req, res) => {
 app.post('/api/phongbans', (req, res) => {
   console.log(req.body.IdPhongBan);
   var values = [
-    [req.body.TenPhongBan, req.body.MaPhongBan,req.body.DonViId]
+    [req.body.TenPhongBan, req.body.MaPhongBan, req.body.DonViId]
   ];
   if (req.body.IdKho === undefined) {
     connection.query("INSERT INTO phongbans (TenPhongBan, MaPhongBan,DonViId) VALUES ?", [values], function (err, result) {
@@ -320,7 +338,7 @@ app.post('/api/phongbans', (req, res) => {
     })
   }
   if (req.body.IdKho) {
-    connection.query("UPDATE phongbans SET TenPhongBan= ? , MaPhongBan = ? , DonViId = ?  WHERE IdPhongBan= ?", [req.body.TenPhongBan, req.body.MaPhongBan, req.body.DonViId,req.body.IdPhongBan], function (err, result) {
+    connection.query("UPDATE phongbans SET TenPhongBan= ? , MaPhongBan = ? , DonViId = ?  WHERE IdPhongBan= ?", [req.body.TenPhongBan, req.body.MaPhongBan, req.body.DonViId, req.body.IdPhongBan], function (err, result) {
       if (err) {
         console.log(err);
       }
@@ -387,7 +405,7 @@ app.delete('/khos/:id', (req, res) => {
 app.post('/api/khos', (req, res) => {
   console.log(req.body.IdKho);
   var values = [
-    [req.body.TenKho, req.body.MaKho,req.body.VungId]
+    [req.body.TenKho, req.body.MaKho, req.body.VungId]
   ];
   if (req.body.IdKho === undefined) {
     connection.query("INSERT INTO khos (TenKho, MaKho,VungId) VALUES ?", [values], function (err, result) {
@@ -399,7 +417,7 @@ app.post('/api/khos', (req, res) => {
     })
   }
   if (req.body.IdKho) {
-    connection.query("UPDATE khos SET TenKho= ? , MaKho = ? , VungId = ?  WHERE IdKho= ?", [req.body.TenKho, req.body.MaKho, req.body.VungId,req.body.IdKho], function (err, result) {
+    connection.query("UPDATE khos SET TenKho= ? , MaKho = ? , VungId = ?  WHERE IdKho= ?", [req.body.TenKho, req.body.MaKho, req.body.VungId, req.body.IdKho], function (err, result) {
       if (err) {
         console.log(err);
       }
@@ -449,17 +467,17 @@ app.post('/api/vungs', (req, res) => {
 })
 // -------------------------------------------Loai Ho So
 app.get('/loaihosos', (req, res) => {
-  connection.query('SELECT * from loaihosos'  , function (error, results) {
+  connection.query('SELECT * from loaihosos', function (error, results) {
     if (error) throw error;
     res.send(results)
   });
 })
 app.delete('/loaihosos/:id', (req, res) => {
   var id = JSON.stringify(req.params.id);
-    connection.query('DELETE FROM loaihosos WHERE IdLoaiHoSo = ' + id, function (error, results) {
-      if (error) throw error;
-      res.send(results)
-    });;
+  connection.query('DELETE FROM loaihosos WHERE IdLoaiHoSo = ' + id, function (error, results) {
+    if (error) throw error;
+    res.send(results)
+  });;
 })
 app.post('/api/loaihosos', (req, res) => {
   var values = [
@@ -485,7 +503,8 @@ app.post('/api/loaihosos', (req, res) => {
   }
 
 })
-function restartServer(){
- return app.listen(port, () => console.log(`Server running : ${port}!`))
+
+function restartServer() {
+  return app.listen(port, () => console.log(`Server running : ${port}!`))
 }
 app.listen(port, () => console.log(`Server running : ${port}!`))

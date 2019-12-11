@@ -1,4 +1,4 @@
-const mysql = require('../../node_modules/mysql');
+const mysql = require('mysql');
 module.exports = {
     connection : function(){
         return mysql.createConnection({

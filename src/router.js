@@ -17,6 +17,7 @@ import DanhSachPhieu from './Component/MuonTra/DanhSachPhieu';
 import ChiTietPhieu from './Component/MuonTra/ChiTietPhieu';
 import DetailHuman from './Component/Human/DetailHuman';
 import DangKyNghi from './Component/Human/DangKyNghi';
+import DetailPhieu from './Component/Human/DetailPhieu';
 export const APP_STATE = {
     HOME :{
         url:"/home",
@@ -98,6 +99,10 @@ export const APP_STATE = {
         DANGKYNGHI:{
             url:"/nhansu/dangkynghi",
             component:DangKyNghi,
+        },
+        DETAILPHIEUNGHI:{
+            url:"/nhansu/phieunghi/:id",
+            component:DetailPhieu,
         }
     },
     LOGIN : {

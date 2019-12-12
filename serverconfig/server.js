@@ -29,6 +29,42 @@ function replaceString(str, str1, str2) {
   }
   return cloneStr;
 }
+//------------------------------------------ Phiếu nghỉ 
+app.get('/phieunghis', (req, res) => {
+  connection.query("Select * from phieunghis", function (error, result) {
+    res.send(result);
+  })
+})
+
+app.get('/phieunghis/:id', (req, res) => {
+  var id = req.params.id;
+  connection.query("Select * from phieunghis where IdPhieuNghi = " + id, function (error, result) {
+    res.send(result);
+  })
+})
+
+app.post('/api/phieunghis', (req, res) => {
+  var values = [
+    [req.body.MaPhieuNghi, req.body.TenNguoiDangKy, req.body.IdNguoiDangKy, req.body.ThoiGianNghi,req.body.ThoiGianKetThuc,req.body.LyDo,req.body.NguoiPheDuyet,req.body.TrangThaiPhieuNghi]
+  ];
+  if(req.body.IdPhieuNghi ===undefined){
+
+    connection.query("INSERT INTO phieunghis (MaPhieuNghi,TenNguoiDangKy,IdNguoiDangKy,ThoiGianNghi,ThoiGianKetThuc,LyDo,NguoiPheDuyet,TrangThaiPhieuNghi) VALUES ?", [values], function (err, result) {
+      if (err) {
+        console.log(err);
+      }
+      res.send(result);
+    })
+  } else {
+    connection.query("UPDATE phieunghis SET  TrangThaiPhieuNghi = ? Where IdPhieuNghi = ?", [ req.body.TrangThaiPhieuNghi,req.body.IdPhieuNghi], function (err, result) {
+      if (err) {
+        console.log(err);
+      }
+      res.send(result);
+    })
+  }
+
+})
 //------------------------------------------Lịch sử
 app.get('/logs', (req, res) => {
   connection.query("Select * from logs", function (error, result) {
@@ -54,12 +90,14 @@ app.get('/phieumuons', (req, res) => {
     res.send(results);
   })
 })
+
 app.get('/phieumuons/:id', (req, res) => {
   var id = req.params.id;
   connection.query("Select * from phieumuons where IdPhieuMuon = " + id, function (error, result) {
     res.send(result);
   })
 })
+
 app.post('/api/phieumuons', (req, res) => {
   console.log(req.body);
   var values = [

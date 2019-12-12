@@ -3,14 +3,18 @@ import 'antd/dist/antd.css';
 import 'react-block-ui/style.css';
 import { Layout, Breadcrumb, Menu, Icon, Avatar, Badge, Dropdown } from 'antd';
 import { BrowserRouter as Router, Route, Link  } from "react-router-dom";
-import { IoIosPricetags ,IoMdAdd } from "react-icons/io";
+import { Redirect } from 'react-router-dom'
+import { IoIosPricetags  } from "react-icons/io";
 import * as CONSTANT from '../../../Constant/constant';
 import nguoidungService from '../../../Service/nguoidung.service';
+import phieunghiService from '../../../Service/phieunghi.service';
+import phieumuonService from '../../../Service/phieumuon.service';
 import 'react-block-ui/style.css';
 import _ from 'lodash';
 // import Siders from './Sider';
 import logo from '../../../Asset/Image/logo192.png'
 import * as APP_STATE from '../../../router';
+import PhieuMuonService from '../../../Service/phieumuon.service';
 const { SubMenu } = Menu;
 const { Content, Sider, Header } = Layout;
 function change_alias(alias) {
@@ -44,10 +48,17 @@ function convetHoTen(str){
 export default class Contents extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            toDoPhieuNghi:null,
+            redirect:false,
+            toDoPhieuOfMe:null
+        };
         this.isLogout = this.isLogout.bind(this);
         this.nguoidungService = new nguoidungService();
+        this.phieunghiService = new phieunghiService();
+        this.phieumuonService = new phieumuonService();
         this.detailInfo = this.detailInfo.bind(this);
+        this._detailPhieu = this._detailPhieu.bind(this);
     }
     isAdmin(){
         var tmp = CONSTANT.GROUP.ADMIN;
@@ -65,7 +76,44 @@ export default class Contents extends React.Component {
         return false;
       }
     componentDidMount() {
+        var _this = this;
         this.isAdmin();
+        this.getPhieuNghiCanPheDuyet().then(function(data){
+            _this.setState({
+                toDoPhieuNghi:_.filter(data.data,function(d){
+                    return d.NguoiPheDuyet === _this.nguoidungService.getUserCurrent().ID && d.TrangThaiPhieuNghi ==="Chờ xử lý";
+                }),
+            })
+        }).then(function(){
+            _this.getPhieuOfMe().then(function(data){
+                _this.setState({
+                  toDoPhieuOfMe:data,
+                })
+            })
+        });
+    }
+    getPhieuNghiCanPheDuyet = async ()=>{
+        return this.phieunghiService.getItems().then(function (data){
+            return data;
+            // _this.setState({
+            //     toDoPhieuNghi:_.filter(data.data,function(d){
+            //         return d.NguoiPheDuyet === _this.nguoidungService.getUserCurrent().ID;
+            //     }),
+            // })
+        })
+    }
+    getPhieuOfMe = async ()=>{
+        var _this = this;
+        return this.phieunghiService.getItems().then(function (data){
+            return _.filter(data.data,function(d){
+                return d.IdNguoiDangKy === _this.nguoidungService.getUserCurrent().ID;
+            })
+            // _this.setState({
+            //     toDoPhieuNghi:_.filter(data.data,function(d){
+            //         return d.NguoiPheDuyet === _this.nguoidungService.getUserCurrent().ID;
+            //     }),
+            // })
+        })
     }
     isLogout(){
         if(localStorage.getItem('ID')){
@@ -79,7 +127,12 @@ export default class Contents extends React.Component {
         var _this =this
         window.location.replace("/nhansu/chitiet/" + _this.nguoidungService.getUserCurrent().ID);
     }
+    _detailPhieu(data){
+        // var _this = this;
+        window.location.replace("/nhansu/phieunghi/" + data.IdPhieuNghi);
+    }
     render() {
+        var _this =this;
         const menu = (
             <Menu>
                 <Menu.Item>
@@ -93,6 +146,27 @@ export default class Contents extends React.Component {
                 </a>
                 </Menu.Item>
 
+            </Menu>
+        );
+        var _array = [1,2,3];
+        var _menu = null;
+        if(this.state.toDoPhieuNghi){       
+             _menu = this.state.toDoPhieuNghi.map(function(data){
+                return(
+                    <Menu.Item onClick={ _this._detailPhieu.bind(this,data) }>
+                        <div >
+                            <span>Phiếu nghỉ </span>
+                    {data.MaPhieuNghi}
+                <span> của {data.TenNguoiDangKy}</span>
+                    </div>
+                    </Menu.Item>
+            )
+        })
+    }
+    
+        const menuToDo = (
+            <Menu>
+               {_menu}
             </Menu>
         );
         return (
@@ -121,9 +195,11 @@ export default class Contents extends React.Component {
 
                             <Menu.Item key="44" style={{ width:'55px',float: 'right' }}>
                                 <span style={{ marginRight: "50px" }}>
-                                    <Badge count={3}>
+                                <Dropdown overlay={menuToDo} placement="bottomCenter">
+                                    <Badge count={this.state.toDoPhieuNghi?this.state.toDoPhieuNghi.length:0}>
         <Avatar >{convetHoTen(this.nguoidungService.getUserCurrent().HoTen)}</Avatar>
                                     </Badge>
+                                    </Dropdown>
                                 </span></Menu.Item>
 
 
@@ -238,6 +314,7 @@ export default class Contents extends React.Component {
                                 </Menu>
                             </Sider>                     
                             <Content style={{ padding: '0 24px', minHeight: 280 }}>
+                            <Route exact path={APP_STATE.APP_STATE.NHANSU.DETAILPHIEUNGHI.url} component = {APP_STATE.APP_STATE.NHANSU.DETAILPHIEUNGHI.component} />
                             <Route exact path={APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.url} component = {APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.component} />
                             <Route exact path={APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.url} component = {APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.component} />
                             <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.url} component = {APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.component} /> 

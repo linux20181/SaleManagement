@@ -90,6 +90,7 @@ export default class Home extends React.Component{
     
         return(
             <div style={{backgroundColor:"#f0f3f8", height:"1000px"}}>
+                    <Row>
                 <div>
                 <Row style = {{paddingTop:"30px" , paddingLeft:"30px"}}>
                 <Col span = {8}>
@@ -104,7 +105,7 @@ export default class Home extends React.Component{
                     <h2>{this.state.allHoSo}</h2>
                     </Col>
                     </div>
-                      </Col>
+                </Col>
                 <Col span = {8}> 
                 <div style={{backgroundColor:"white", height:"200px" , width:"350px" , borderWidth:"1px" , borderRadius:"8px"}}>
                 <div style={{backgroundColor:"white", height:"200px" , width:"430px" , borderWidth:"1px" , borderRadius:"8px"}}>                 
@@ -166,6 +167,7 @@ export default class Home extends React.Component{
                 </Col>
                 </Row>
                 </div>
+                </Row>
                 <div style = {{paddingTop:"30px" , paddingLeft:"30px"}}>
                     <Table bordered title={() => <h3 style = {{color : "#52b3eb" ,textTransform : "uppercase"}}> Phiếu đăng ký của tôi </h3>}  columns={columnsPM} dataSource = {this.state.PhieuMuons} />
                     </div>

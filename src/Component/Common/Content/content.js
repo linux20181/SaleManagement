@@ -237,9 +237,7 @@ export default class Contents extends React.Component {
                 </span>
                                         }
                                     >
-                                        <Menu.Item key="1">
-                                            Quản lý chung
-                                        </Menu.Item>
+                                       
                                         <Menu.Item key="2"><Link to={APP_STATE.APP_STATE.NHANSU.TREEHUMAN.url}>Sơ đồ nhân sự</Link></Menu.Item>
                                     { this.isAdmin() ? <Menu.Item key="11"><Link to={APP_STATE.APP_STATE.NHANSU.ADDHUMAN.url}>Bổ sung nhân sự</Link></Menu.Item> : null}
                                         <Menu.Item key="4"><Link to={APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.url}>Đăng ký nghỉ</Link></Menu.Item>

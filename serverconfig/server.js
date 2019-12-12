@@ -63,7 +63,15 @@ app.post('/api/phieunghis', (req, res) => {
       res.send(result);
     })
   }
+})
 
+app.delete('/phieunghis/:id', (req, res) => {
+  var id = JSON.stringify(req.params.id);
+  console.log(id);
+  connection.query('DELETE FROM phieunghis WHERE IdPhieuNghi = ' + id, function (error, results) {
+    if (error) throw error;
+    res.send(results)
+  });
 })
 //------------------------------------------Lịch sử
 app.get('/logs', (req, res) => {

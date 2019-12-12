@@ -42,6 +42,7 @@ class DetailPhieu extends React.Component {
         return stringDate
       }
       sendRequest = ()=>{
+        var _this =this;
         var data = this.props.form.getFieldsValue();
         data.MaPhieuNghi = randomMaPhieu(this.nguoidungService.getUserCurrent());
         data.TenNguoiDangKy = this.nguoidungService.getUserCurrent().HoTen;
@@ -57,8 +58,8 @@ class DetailPhieu extends React.Component {
             duration: 4,
         }
         ); 
-        
-        })
+      })
+      
       }
 
       componentDidMount(){
@@ -85,6 +86,7 @@ class DetailPhieu extends React.Component {
                 duration: 2,
             }
             );
+        _this.componentDidMount();   
         })
     }
     render(){

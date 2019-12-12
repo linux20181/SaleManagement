@@ -3,7 +3,6 @@ import 'antd/dist/antd.css';
 import 'react-block-ui/style.css';
 import { Layout, Breadcrumb, Menu, Icon, Avatar, Badge, Dropdown } from 'antd';
 import { BrowserRouter as Router, Route, Link  } from "react-router-dom";
-import { Redirect } from 'react-router-dom'
 import { IoIosPricetags  } from "react-icons/io";
 import * as CONSTANT from '../../../Constant/constant';
 import nguoidungService from '../../../Service/nguoidung.service';
@@ -15,6 +14,7 @@ import _ from 'lodash';
 import logo from '../../../Asset/Image/logo192.png'
 import * as APP_STATE from '../../../router';
 import PhieuMuonService from '../../../Service/phieumuon.service';
+import { deflateSync } from 'zlib';
 const { SubMenu } = Menu;
 const { Content, Sider, Header } = Layout;
 function change_alias(alias) {
@@ -76,6 +76,7 @@ export default class Contents extends React.Component {
         return false;
       }
     componentDidMount() {
+       
         var _this = this;
         this.isAdmin();
         this.getPhieuNghiCanPheDuyet().then(function(data){
@@ -86,11 +87,21 @@ export default class Contents extends React.Component {
             })
         }).then(function(){
             _this.getPhieuOfMe().then(function(data){
-                _this.setState({
-                  toDoPhieuOfMe:data,
-                })
+                if(data.length > 0){
+                    if(new Date(data[0].ThoiGianKetThuc) < new Date()){
+                        // console.log(new Date(data[0].ThoiGianKetThuc));
+                        // console.log(new Date());
+                        _this.phieunghiService.deleteItem(data[0].IdPhieuNghi).then(function(){
+                            
+                        })
+                    }
+                }
+                    _this.setState({
+                        toDoPhieuOfMe:data[0],
+                    })
             })
         });
+        
     }
     getPhieuNghiCanPheDuyet = async ()=>{
         return this.phieunghiService.getItems().then(function (data){
@@ -129,15 +140,24 @@ export default class Contents extends React.Component {
     }
     _detailPhieu(data){
         // var _this = this;
-        window.location.replace("/nhansu/phieunghi/" + data.IdPhieuNghi);
+        if(data){
+            window.location.replace("/nhansu/phieunghi/" + data.IdPhieuNghi);
+        }
+        return;    
     }
     render() {
+        console.log(this.state);
         var _this =this;
         const menu = (
             <Menu>
                 <Menu.Item>
                     <a onClick={this.detailInfo} >
                         Thông tin cá nhân
+                </a>
+                </Menu.Item>
+                <Menu.Item>
+                    <a onClick={this._detailPhieu.bind(this,_this.state.toDoPhieuOfMe)} >
+                        Phiếu nghỉ của tôi
                 </a>
                 </Menu.Item>
                 <Menu.Item>
@@ -150,6 +170,19 @@ export default class Contents extends React.Component {
         );
         var _array = [1,2,3];
         var _menu = null;
+        if(_this.state.toDoPhieuOfMe){
+            if(_this.state.toDoPhieuOfMe.TrangThaiPhieuNghi === "Đã phê duyệt"){
+                var _tmp = (
+                    <Menu.Item onClick={ _this._detailPhieu.bind(this,this.state.toDoPhieuOfMe) }>
+                        <div >
+                            <span>Phiếu đăng ký nghỉ </span>
+                    {this.state.toDoPhieuOfMe.MaPhieuNghi}
+                <span> đã được phê duyệt</span>
+                    </div>
+                    </Menu.Item>    
+            );
+        }
+        }
         if(this.state.toDoPhieuNghi){       
              _menu = this.state.toDoPhieuNghi.map(function(data){
                 return(
@@ -162,13 +195,18 @@ export default class Contents extends React.Component {
                     </Menu.Item>
             )
         })
+        _menu.push(_tmp);
     }
-    
+        
         const menuToDo = (
             <Menu>
                {_menu}
             </Menu>
         );
+        var _count = 0;
+        if(_tmp){
+            _count = 1;
+        }
         return (
             <div>
                 <Router>
@@ -196,7 +234,7 @@ export default class Contents extends React.Component {
                             <Menu.Item key="44" style={{ width:'55px',float: 'right' }}>
                                 <span style={{ marginRight: "50px" }}>
                                 <Dropdown overlay={menuToDo} placement="bottomCenter">
-                                    <Badge count={this.state.toDoPhieuNghi?this.state.toDoPhieuNghi.length:0}>
+                                    <Badge count={this.state.toDoPhieuNghi?this.state.toDoPhieuNghi.length + _count:0}>
         <Avatar >{convetHoTen(this.nguoidungService.getUserCurrent().HoTen)}</Avatar>
                                     </Badge>
                                     </Dropdown>

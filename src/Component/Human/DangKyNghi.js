@@ -30,6 +30,7 @@ class DangKyNghi extends React.Component {
         return stringDate
       }
       sendRequest = ()=>{
+        var _this = this;
         var data = this.props.form.getFieldsValue();
         data.MaPhieuNghi = randomMaPhieu(this.nguoidungService.getUserCurrent());
         data.TenNguoiDangKy = this.nguoidungService.getUserCurrent().HoTen;
@@ -47,11 +48,11 @@ class DangKyNghi extends React.Component {
           notification.success({
             defaultValue: "topRight",
             message: "Đã gửi đăng ký.",
-            duration: 4,
+            duration: 2,
         }
         ); 
-
-        })
+          window.location.reload();
+      })
       }
     render(){
         const { getFieldDecorator } = this.props.form;

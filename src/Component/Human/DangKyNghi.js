@@ -3,6 +3,7 @@ import { Form, Input, Row, Col,DatePicker ,Button, Select,notification,Tabs,mess
 import nguoidungService from '../../Service/nguoidung.service';
 import phieunghiService from '../../Service/phieunghi.service';
 import '../../Asset/Css/common.css';
+import _  from 'lodash'; 
 import { IoMdSend } from "react-icons/io";
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -18,6 +19,9 @@ function randomMaPhieu(currUser){
 class DangKyNghi extends React.Component {
     constructor(props){
         super(props);
+        this.state = {
+          allDocOfCurrUser: [],
+        }
         this.nguoidungService = new nguoidungService();
         this.phieunghiService = new phieunghiService();
     }
@@ -29,8 +33,26 @@ class DangKyNghi extends React.Component {
         var stringDate = date.getFullYear() + "/" + JSON.stringify(parseInt(date.getMonth()) + 1) + "/" + (date.getDate()+1);
         return stringDate
       }
+    componentDidMount(){
+      var _this = this;
+      _this.phieunghiService.getItems().then(function(data){
+        _this.setState({
+          allDocOfCurrUser : data.data,
+        })
+       });
+       
+      }  
+
       sendRequest = ()=>{
-        var _this = this;
+        if(!this.canAddDoc()){
+          notification.error({
+            defaultValue: "topRight",
+            message: "Lỗi",
+            description:"Bạn đang có phiếu chờ phê duyệt !",
+            duration: 2,
+        })
+        return;
+        };
         var data = this.props.form.getFieldsValue();
         data.MaPhieuNghi = randomMaPhieu(this.nguoidungService.getUserCurrent());
         data.TenNguoiDangKy = this.nguoidungService.getUserCurrent().HoTen;
@@ -54,6 +76,23 @@ class DangKyNghi extends React.Component {
           window.location.reload();
       })
       }
+
+      canAddDoc = ()=>{
+        var _this = this;
+        var tmp = [];
+        if(this.state.allDocOfCurrUser){
+         tmp = _.filter(this.state.allDocOfCurrUser,function(i){
+            return i.IdNguoiDangKy === _this.nguoidungService.getUserCurrent().ID && i.TrangThaiPhieuNghi ==="Chờ xử lý";
+          })
+          if(tmp.length > 1){
+            return false;
+          }else{
+            return true;
+          }
+        }
+        return true;
+      }
+
     render(){
         const { getFieldDecorator } = this.props.form;
         var today = new Date();

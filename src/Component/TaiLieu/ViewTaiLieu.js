@@ -74,7 +74,7 @@ export default class ViewTaiLieu extends React.Component{
             'TinhTrangMuonTra':data.TinhTrangMuonTra,
              }
         })
-    dataset.pop();
+   // dataset.pop();
     dataset.unshift({SoHieuTaiLieu:'Số hiệu tài liệu',TenTaiLieu:'Tên tài liệu',NgayBanHanh:'Ngày ban hành',NgayHetHan:'Ngày hết hạn',SoTrang:"SoTrang",GhiChu:"Ghi chú",TinhTrangMuonTra:"Tình trạng mượn trả"})
     var columnsTL = [
         {

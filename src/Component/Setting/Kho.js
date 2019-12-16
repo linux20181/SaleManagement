@@ -3,6 +3,7 @@ import 'antd/dist/antd.css';
 import { Form, Menu, Input, Button, notification, message, Modal, Table, Icon, Select, Row } from 'antd';
 import khoService from '../../Service/kho.service';
 import vungService from '../../Service/vung.service';
+import tuService from '../../Service/tu.service';
 import ExportExel from '../Common/Export/ExportExel';
 import _ from 'lodash';
 const { Option } = Select;
@@ -18,9 +19,11 @@ export default class LoaiHoSo extends React.Component {
             visible: false,
             dataKhos: [],
             dataVungs: [],
+            dataTus:[],
             count: 1,
         };
         this.khoService = new khoService();
+        this.tuService = new tuService();
         this.vungService = new vungService();
         this.handChange = this.handChange.bind(this);
         this.removeItem = this.removeItem.bind(this);
@@ -116,6 +119,16 @@ export default class LoaiHoSo extends React.Component {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
+                if(!_this.canDelete(record)){
+                    notification.error(
+                        {
+                            message: "Có lỗi xảy ra !",
+                            defaultValue: "topRight",
+                            description:"Dữ liệu đang được liên kết."
+                        }
+                    )
+                    return;
+                }
                 _this.khoService.deleteItem(record.IdKho)
                     .then(function () {
                         notification.success({
@@ -149,6 +162,12 @@ export default class LoaiHoSo extends React.Component {
             [name]: value,
         })
     }
+    canDelete = (record)=>{
+        if(_.indexOf(this.state.dataTus,record.IdKho) !==-1){   
+            return false;
+        }
+        return true;
+    }
     componentDidMount() {
         var _this = this;
         var query = "";
@@ -170,8 +189,12 @@ export default class LoaiHoSo extends React.Component {
                 _this.setState({
                     dataKhos: data.data,
                 })
-
             })
+        _this.tuService.getItems().then(function(data){
+            _this.setState({
+                dataTus:_.map(data.data,"IdKho"),
+            })
+        })    
     }
     isEditting(record) {
         var number = this.state.count;

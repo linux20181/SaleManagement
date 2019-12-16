@@ -2,6 +2,7 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import { Form, Menu,Input, Button, notification, message, Modal, Table, Icon, Row } from 'antd';
 import vungService from '../../Service/vung.service';
+import khoService from '../../Service/kho.service';
 import ExportExel from '../Common/Export/ExportExel';
 import _ from 'lodash';
 const { Search } = Input;
@@ -14,18 +15,27 @@ export default class Vung extends React.Component {
             MaVung: null,
             visible: false,
             dataVungs: [],
+            dataKhos:[],
             count: 1,
         };
         this.vungService = new vungService();
+        this.khoService = new khoService();
         this.handChange = this.handChange.bind(this);
         this.removeItem = this.removeItem.bind(this);
         this.showModal = this.showModal.bind(this);
         this.save = this.save.bind(this);
         this.cancel = this.cancel.bind(this);
         this.isEditting = this.isEditting.bind(this);
+     //   this.canDelete = this.canDelete.bind(this);
     }
     cancel() {
         this.setState({ visible: false });
+    }
+    canDelete = (record)=>{
+        if(_.indexOf(this.state.dataKhos,record.IdVung) !==-1){   
+            return false;
+        }
+        return true;
     }
     save() {
         var _this = this;
@@ -102,6 +112,16 @@ export default class Vung extends React.Component {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
+                if(!_this.canDelete(record)){
+                    notification.error(
+                        {
+                            message: "Có lỗi xảy ra !",
+                            defaultValue: "topRight",
+                            description:"Dữ liệu đang được liên kết."
+                        }
+                    )
+                    return;
+                }
                 _this.vungService.deleteItem(record.IdVung)
                     .then(function () {
                         notification.success({
@@ -150,6 +170,12 @@ export default class Vung extends React.Component {
                     dataVungs: data.data,
                 })
             })
+        _this.khoService.getItems()
+            .then(function(data){
+                _this.setState({
+                    dataKhos:_.map(data.data,"IdVung"),
+                })
+            })    
     }
     isEditting(record) {
         var number = this.state.count;
@@ -187,7 +213,6 @@ export default class Vung extends React.Component {
         })
         dataset.pop();
         dataset.unshift({TenVung:'Tên vùng',MaVung:'Mã vùng'})
-        console.log(dataset);
         const columns = [
             {
                 title: 'Tên vùng',

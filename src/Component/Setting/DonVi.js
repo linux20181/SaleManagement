@@ -2,6 +2,7 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import { Form, Menu,Input, Button, notification, message, Modal, Table, Icon, Row } from 'antd';
 import donviService from '../../Service/donvi.service';
+import phongbanService from '../../Service/phongban.service';
 import ExportExel from '../Common/Export/ExportExel';
 import _ from 'lodash';
 const { Search } = Input;
@@ -15,8 +16,10 @@ export default class DonVi extends React.Component {
             MaDonVi: null,
             visible: false,
             dataDonVis: [],
+            dataPhongBans:[],
             count: 1,
         };
+        this.phongbanService = new phongbanService();
         this.donviService = new donviService();
         this.handChange = this.handChange.bind(this);
         this.removeItem = this.removeItem.bind(this);
@@ -95,6 +98,12 @@ export default class DonVi extends React.Component {
         }
 
     }
+    canDelete = (record)=>{
+        if(_.indexOf(this.state.dataPhongBans,record.IdDonVi) !==-1){   
+            return false;
+        }
+        return true;
+    }
     removeItem(record) {
         var _this = this;
         Modal.confirm({
@@ -103,6 +112,16 @@ export default class DonVi extends React.Component {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
+                if(!_this.canDelete(record)){
+                    notification.error(
+                        {
+                            message: "Có lỗi xảy ra !",
+                            defaultValue: "topRight",
+                            description:"Dữ liệu đang được liên kết."
+                        }
+                    )
+                    return;
+                }
                 _this.donviService.deleteItem(record.IdDonVi)
                     .then(function () {
                         notification.success({
@@ -151,6 +170,12 @@ export default class DonVi extends React.Component {
                     dataDonVis: data.data,
                 })
             })
+        _this.phongbanService.getItems(query)
+            .then(function(data){
+                _this.setState({
+                    dataPhongBans:_.map(data.data,"IdDonVi"),
+                })
+            })    
     }
     isEditting(record) {
         var number = this.state.count;

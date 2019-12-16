@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { Form, Input, Row, Col, Select, Table, Button, notification ,Icon,Dropdown ,Menu } from 'antd';
+import { Form, Input, Row, Col, Select, Table, Button, notification ,Icon,Dropdown ,Menu ,Modal} from 'antd';
 import { Tabs } from 'antd';
 import _ from 'lodash';
 import loaihosoService from '../../Service/loaihoso.service';
@@ -264,11 +264,44 @@ class ChiTietHoSo extends React.Component {
             console.log(objj.NgayBanHanh.slice(0,10));
         }
     }
+    removeItem = ()=>{
+        var _this = this ;
+        Modal.confirm({
+            title: 'Bạn có muốn xóa không ?',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                _this.hosotailieuService.deleteItem(_this.state.HoSoTaiLieus.IdHoSo)
+                    .then(function () {
+                        notification.success({
+                            message: "Xóa thành công !",
+                            defaultValue: "topRight",
+                            duration: 2,
+                        }                     
+                        );
+                    })
+                    .catch(function (err) {
+                        notification.error(
+                            {
+                                message: "Có lỗi xảy ra !",
+                                defaultValue: "topRight",
+                                duration: 4,
+                            }
+                        )
+                    }).finally(function () {
+
+                    })
+            },
+            onCancel() {
+            },
+        });
+    }
     render() {        
         const menu = (
             <Menu>
               <Menu.Item>
-                <a target="_blank" rel="noopener noreferrer" href="http://www.alipay.com/">
+                <a onClick={null}>
                  Xóa hồ sơ
                 </a>
               </Menu.Item>

@@ -161,6 +161,11 @@ export default class Contents extends React.Component {
                 </a>
                 </Menu.Item>
                 <Menu.Item>
+                    <a onClick={null}>
+                       Đổi mật khẩu
+                </a>
+                </Menu.Item>
+                <Menu.Item>
                     <a onClick={this.isLogout}>
                         Đăng Xuất
                 </a>
@@ -221,9 +226,10 @@ export default class Contents extends React.Component {
                             <Menu.Item key="4"> <Avatar size="large" src={logo} /></Menu.Item>
           
                             <Menu.Item key="1">
-                                Trang chủ
+                            <Link to ="/home">
+                                          Trang Chủ 
+                                            </Link> 
                             </Menu.Item>
-                            <Menu.Item key="2">Phòng ban</Menu.Item>
                             <Menu.Item key="3" style={{ float: 'right' }}>
 
                                 <Dropdown overlay={menu} placement="bottomLeft">

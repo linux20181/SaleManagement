@@ -3,6 +3,8 @@ import 'antd/dist/antd.css';
 import { Form, Menu,Input, Button, notification, message, Modal, Table, Icon, Row } from 'antd';
 import donviService from '../../Service/donvi.service';
 import phongbanService from '../../Service/phongban.service';
+import hosoService from '../../Service/hosotailieu.service';
+import tailieuService from '../../Service/tailieu.service';
 import ExportExel from '../Common/Export/ExportExel';
 import _ from 'lodash';
 const { Search } = Input;
@@ -17,8 +19,12 @@ export default class DonVi extends React.Component {
             visible: false,
             dataDonVis: [],
             dataPhongBans:[],
+            dataHoSos:[],
+            dataTLs:[],
             count: 1,
         };
+        this.hosoService = new hosoService();
+        this.tailieuService = new tailieuService();
         this.phongbanService = new phongbanService();
         this.donviService = new donviService();
         this.handChange = this.handChange.bind(this);
@@ -99,7 +105,7 @@ export default class DonVi extends React.Component {
 
     }
     canDelete = (record)=>{
-        if(_.indexOf(this.state.dataPhongBans,record.IdDonVi) !==-1){   
+        if((_.indexOf(this.state.dataPhongBans,record.IdDonVi) !==-1)||(_.indexOf(this.state.dataHoSos,record.IdDonVi) !==-1)||(_.indexOf(this.state.dataTLs,record.IdDonVi) !==-1)){   
             return false;
         }
         return true;
@@ -175,7 +181,17 @@ export default class DonVi extends React.Component {
                 _this.setState({
                     dataPhongBans:_.map(data.data,"IdDonVi"),
                 })
-            })    
+            }) 
+            _this.hosoService.getItems("").then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"DonViSoHuuId")
+                })
+            })
+            _this.tailieuService.getItems("").then(function(data){
+                _this.setState({
+                    dataTLs:_.map(data.data,"DonViBanHanhId")
+                })
+            })       
     }
     isEditting(record) {
         var number = this.state.count;

@@ -3,6 +3,8 @@ import 'antd/dist/antd.css';
 import { Form, Menu, Input, Button, notification, message, Modal, Table, Icon, Select, Row } from 'antd';
 import phongbanService from '../../Service/phongban.service';
 import donviService from '../../Service/donvi.service';
+import hosoService from '../../Service/hosotailieu.service';
+import tailieuService from '../../Service/tailieu.service';
 import ExportExel from '../Common/Export/ExportExel';
 import _ from 'lodash';
 const { Option } = Select;
@@ -18,8 +20,12 @@ export default class PhongBan extends React.Component {
             visible: false,
             dataPhongBans: [],
             dataDonVis: [],
+            dataHoSos:[],
+            dataTLs:[],
             count: 1,
         };
+        this.hosoService = new hosoService();
+        this.tailieuService = new tailieuService();
         this.phongbanService = new phongbanService();
         this.donviService = new donviService();
         this.handChange = this.handChange.bind(this);
@@ -108,6 +114,15 @@ export default class PhongBan extends React.Component {
         }
 
     }
+
+    canDelete = (record)=>{
+        //dataTLs
+        if((_.indexOf(this.state.dataHoSos,record.IdPhongBan) !==-1)||(_.indexOf(this.state.dataTLs,record.IdPhongBan) !==-1)){   
+            return false;
+        }
+        return true;
+    }
+
     removeItem(record) {
         var _this = this;
         Modal.confirm({
@@ -116,6 +131,16 @@ export default class PhongBan extends React.Component {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
+                if(!_this.canDelete(record)){
+                    notification.error(
+                        {
+                            message: "Có lỗi xảy ra !",
+                            defaultValue: "topRight",
+                            description:"Dữ liệu đang được liên kết."
+                        }
+                    )
+                    return;
+                }
                 _this.phongbanService.deleteItem(record.IdPhongBan)
                     .then(function () {
                         notification.success({
@@ -172,6 +197,17 @@ export default class PhongBan extends React.Component {
                 })
 
             })
+            _this.hosoService.getItems("").then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"PhongBanSoHuuId")
+                })
+            })
+            _this.tailieuService.getItems("").then(function(data){
+                _this.setState({
+                    dataTLs:_.map(data.data,"PhongBanPheDuyetId")
+                })
+            })
+            
     }
     isEditting(record) {
         var _this = this;

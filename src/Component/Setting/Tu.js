@@ -3,6 +3,7 @@ import 'antd/dist/antd.css';
 import { Form, Menu, Input, Button, notification, message, Modal, Table, Icon, Select, Row } from 'antd';
 import khoService from '../../Service/kho.service';
 import tuService from '../../Service/tu.service';
+import hosoService from '../../Service/hosotailieu.service';
 import ExportExel from '../Common/Export/ExportExel';
 import _ from 'lodash';
 const { Option } = Select;
@@ -20,6 +21,7 @@ export default class Tu extends React.Component {
             dataKhos: [],
             count: 1,
         };
+        this.hosoService = new hosoService();
         this.tuService = new tuService();
         this.khoService = new khoService();
         this.handChange = this.handChange.bind(this);
@@ -102,6 +104,12 @@ export default class Tu extends React.Component {
         }
 
     }
+    canDelete = (record)=>{
+        if((_.indexOf(this.state.dataHoSos,record.IdTu) !==-1)){   
+            return false;
+        }
+        return true;
+    }
     removeItem(record) {
         var _this = this;
         Modal.confirm({
@@ -110,6 +118,16 @@ export default class Tu extends React.Component {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
+                if(!_this.canDelete(record)){
+                    notification.error(
+                        {
+                            message: "Có lỗi xảy ra !",
+                            defaultValue: "topRight",
+                            description:"Dữ liệu đang được liên kết."
+                        }
+                    )
+                    return;
+                }
                 _this.tuService.deleteItem(record.IdTu)
                     .then(function () {
                         notification.success({
@@ -165,6 +183,11 @@ export default class Tu extends React.Component {
                     dataTus: data.data,
                 })
 
+            })
+            _this.hosoService.getItems("").then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"TuId")
+                })
             })
     }
     isEditting(record) {

@@ -4,6 +4,8 @@ import { Form, Menu, Input, Button, notification, message, Modal, Table, Icon, S
 import khoService from '../../Service/kho.service';
 import vungService from '../../Service/vung.service';
 import tuService from '../../Service/tu.service';
+import hosoService from '../../Service/hosotailieu.service';
+import tailieuService from'../../Service/tailieu.service';
 import ExportExel from '../Common/Export/ExportExel';
 import _ from 'lodash';
 const { Option } = Select;
@@ -22,6 +24,8 @@ export default class LoaiHoSo extends React.Component {
             dataTus:[],
             count: 1,
         };
+        this.hosoService = new hosoService();
+        this.tailieuService = new tailieuService();
         this.khoService = new khoService();
         this.tuService = new tuService();
         this.vungService = new vungService();
@@ -163,7 +167,7 @@ export default class LoaiHoSo extends React.Component {
         })
     }
     canDelete = (record)=>{
-        if(_.indexOf(this.state.dataTus,record.IdKho) !==-1){   
+        if((_.indexOf(this.state.dataTus,record.IdKho) !==-1)||(_.indexOf(this.state.dataHoSos,record.IdKho) !==-1)){   
             return false;
         }
         return true;
@@ -195,6 +199,16 @@ export default class LoaiHoSo extends React.Component {
                 dataTus:_.map(data.data,"IdKho"),
             })
         })    
+        _this.hosoService.getItems("").then(function(data){
+            _this.setState({
+                dataHoSos:_.map(data.data,"KhoId")
+            })
+        })
+        // _this.tailieuService.getItems("").then(function(data){
+        //     _this.setState({
+        //         dataTLs:_.map(data.data,"PhongBanPheDuyetId")
+        //     })
+        // })
     }
     isEditting(record) {
         var number = this.state.count;

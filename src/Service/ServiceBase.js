@@ -4,6 +4,10 @@ function parseDate(date){
     var stringDate = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.toLocaleTimeString().substring(0, date.toLocaleTimeString().length -2);
     return stringDate
   }
+  function convertTime(date) {
+    var stringDate = date.getFullYear() + "-" + JSON.stringify(parseInt(date.getMonth()) + 1) + "-" + date.getDate()  + " " + date.toLocaleTimeString().substring(0, date.toLocaleTimeString().length -2) ;
+    return stringDate
+  }  
 export default class ServiceBase {
     constructor(endpoint) {
         this.endpoint = endpoint;
@@ -34,7 +38,7 @@ export default class ServiceBase {
         })
     }
     async saveItem(data) {
-        data.NgayTao = parseDate(new Date());
+        data.NgayTao = convertTime(new Date());
         if(!data.Author){
         data.Author = JSON.parse(localStorage.getItem("User")).Email ;
         }

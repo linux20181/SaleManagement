@@ -55,6 +55,7 @@ class ChiTietHoSo extends React.Component {
         this.cancelDoc = this.cancelDoc.bind(this);
         this.addDoc = this.addDoc.bind(this);
         this.afterModal = this.afterModal.bind(this);
+        this.removeItem = this.removeItem.bind(this);
     }
     convertDate(date) {
         var date = new Date(date);
@@ -264,7 +265,7 @@ class ChiTietHoSo extends React.Component {
             console.log(objj.NgayBanHanh.slice(0,10));
         }
     }
-    removeItem = ()=>{
+    removeItem (){
         var _this = this ;
         Modal.confirm({
             title: 'Bạn có muốn xóa không ?',
@@ -280,6 +281,7 @@ class ChiTietHoSo extends React.Component {
                             duration: 2,
                         }                     
                         );
+                        _this.props.history.push("/hoso/danhsach");
                     })
                     .catch(function (err) {
                         notification.error(
@@ -301,7 +303,7 @@ class ChiTietHoSo extends React.Component {
         const menu = (
             <Menu>
               <Menu.Item>
-                <a onClick={null}>
+                <a onClick={this.removeItem}>
                  Xóa hồ sơ
                 </a>
               </Menu.Item>

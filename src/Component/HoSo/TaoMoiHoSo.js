@@ -81,6 +81,9 @@ class TaoMoiHoSo extends React.Component {
       if(!data.KhoId){
         validates.push("Kho là trường bắt buộc");
       }
+      if(!data.TuId){
+        validates.push("Tủ là trường bắt buộc");
+      }
       if(!data.SoHieuHoSo){
         validates.push("Số hiệu hồ sơ là trường bắt buộc");
       }

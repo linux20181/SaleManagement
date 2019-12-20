@@ -163,6 +163,33 @@ export default class LoaiHoSo extends React.Component {
             [name]: value,
         })
     }
+    searchItem = (query)=>{
+        var _query = "Where TenLoaiHoSo Like "+"'"+query+"%'"; 
+        var _this = this;
+        var query = "";
+        _this.loaihosoService.getItems(_query)
+            .then(function (data) {
+                var element = {
+                    TenLoaiHoSo: <Input name="TenLoaiHoSo" type="text" onChange={_this.handChange} />,
+                    MaLoaiHoSo: <Input name="MaLoaiHoSo" type="text" onChange={_this.handChange} />,
+                    isCreate: true,
+                };
+                data.data.push(element);
+                _this.setState({
+                    dataLoaiHoSos: data.data,
+                })
+            })
+            _this.hosoService.getItems(query).then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"LoaiHoSoId")
+                })
+            })
+            _this.tailieuService.getItems(query).then(function(data){
+                _this.setState({
+                    dataTLs:_.map(data.data,"LoaiTaiLieuId")
+                })
+            })   
+    }
     componentDidMount() {
         var _this = this;
         var query = "";
@@ -178,12 +205,12 @@ export default class LoaiHoSo extends React.Component {
                     dataLoaiHoSos: data.data,
                 })
             })
-            _this.hosoService.getItems("").then(function(data){
+            _this.hosoService.getItems(query).then(function(data){
                 _this.setState({
                     dataHoSos:_.map(data.data,"LoaiHoSoId")
                 })
             })
-            _this.tailieuService.getItems("").then(function(data){
+            _this.tailieuService.getItems(query).then(function(data){
                 _this.setState({
                     dataTLs:_.map(data.data,"LoaiTaiLieuId")
                 })

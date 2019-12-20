@@ -33,7 +33,7 @@ export default class Home extends React.Component{
     }
     componentDidMount(){
         var _this = this ;
-        var promises = [this.hosotailieuService.getItems(),this.tailieuService.getItems(),this.phieumuonService.getItems()]
+        var promises = [this.hosotailieuService.getItems(""),this.tailieuService.getItems(""),this.phieumuonService.getItems("")]
         Promise.all(promises).then(function(data){
             _this.setState({
                 allHoSo : data[0].data.length,

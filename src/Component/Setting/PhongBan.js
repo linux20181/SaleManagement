@@ -174,10 +174,45 @@ export default class PhongBan extends React.Component {
             [name]: value,
         })
     }
+    searchItem = (query)=>{
+        var _query = "AND TenPhongBan Like "+"'"+query+"%'";    
+        var _this = this;
+        var query = "";
+        _this.donviService.getItems(query).
+            then(function (data) {
+                console.log(data)
+                _this.setState({
+                    dataDonVis: data.data,
+                })
+                return _this.phongbanService.getItems(_query);
+            })
+            .then(function (data) {
+                var element = {
+                    TenPhongBan: <Input name="TenPhongBan" type="text" onChange={_this.handChange} />,
+                    MaPhongBan: <Input name="MaPhongBan" type="text" onChange={_this.handChange} />,
+                    isCreate: true,
+                };
+                data.data.push(element);
+                _this.setState({
+                    dataPhongBans: data.data,
+                })
+
+            })
+            _this.hosoService.getItems(query).then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"PhongBanSoHuuId")
+                })
+            })
+            _this.tailieuService.getItems(query).then(function(data){
+                _this.setState({
+                    dataTLs:_.map(data.data,"PhongBanPheDuyetId")
+                })
+            })
+    }   
     componentDidMount() {
         var _this = this;
         var query = "";
-        _this.donviService.getItems("").
+        _this.donviService.getItems(query).
             then(function (data) {
                 console.log(data)
                 _this.setState({
@@ -197,12 +232,12 @@ export default class PhongBan extends React.Component {
                 })
 
             })
-            _this.hosoService.getItems("").then(function(data){
+            _this.hosoService.getItems(query).then(function(data){
                 _this.setState({
                     dataHoSos:_.map(data.data,"PhongBanSoHuuId")
                 })
             })
-            _this.tailieuService.getItems("").then(function(data){
+            _this.tailieuService.getItems(query).then(function(data){
                 _this.setState({
                     dataTLs:_.map(data.data,"PhongBanPheDuyetId")
                 })

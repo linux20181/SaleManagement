@@ -140,7 +140,7 @@ class TaoMoiHoSo extends React.Component {
   onChangeVung(event) {
     console.log(event);
     var _this = this
-    this.khoService.getItems().then(function (data) {
+    this.khoService.getItems("").then(function (data) {
       _this.setState({
         dataSourceKho: _.filter(data.data, function (d) {
           return d.IdVung === event;
@@ -151,7 +151,7 @@ class TaoMoiHoSo extends React.Component {
   onChangeKho(event) {
     console.log(event);
     var _this = this
-    this.tuService.getItems().then(function (data) {
+    this.tuService.getItems("").then(function (data) {
       _this.setState({
         dataSourceTu: _.filter(data.data, function (d) {
           return d.IdKho === event;
@@ -161,7 +161,7 @@ class TaoMoiHoSo extends React.Component {
   }
   onChangeDonVi(event) {
     var _this = this
-    this.phongbanService.getItems().then(function (data) {
+    this.phongbanService.getItems("").then(function (data) {
       _this.setState({
         dataSourcePhongBan: _.filter(data.data, function (d) {
           return d.IdDonVi === event;
@@ -173,7 +173,7 @@ class TaoMoiHoSo extends React.Component {
     console.log(this.props.location);
     var _this = this;
 
-    var promises = [_this.loaihosoService.getItems(), _this.donviService.getItems(), _this.vungService.getItems(),_this.hosotailieuService.getItems()];
+    var promises = [_this.loaihosoService.getItems(""), _this.donviService.getItems(""), _this.vungService.getItems(""),_this.hosotailieuService.getItems("")];
     Promise.all(promises).then(function (data) {
       _this.setState({
         dataSourceLoaiHoSo: data[0].data,

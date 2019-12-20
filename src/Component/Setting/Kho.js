@@ -175,7 +175,7 @@ export default class LoaiHoSo extends React.Component {
     componentDidMount() {
         var _this = this;
         var query = "";
-        _this.vungService.getItems("").
+        _this.vungService.getItems(query).
             then(function (data) {
                 console.log(data)
                 _this.setState({
@@ -194,12 +194,12 @@ export default class LoaiHoSo extends React.Component {
                     dataKhos: data.data,
                 })
             })
-        _this.tuService.getItems().then(function(data){
+        _this.tuService.getItems(query).then(function(data){
             _this.setState({
                 dataTus:_.map(data.data,"IdKho"),
             })
         })    
-        _this.hosoService.getItems("").then(function(data){
+        _this.hosoService.getItems(query).then(function(data){
             _this.setState({
                 dataHoSos:_.map(data.data,"KhoId")
             })
@@ -237,8 +237,20 @@ export default class LoaiHoSo extends React.Component {
             visible: true,
         });
     }
-    searchItem(value) {
-        console.log(value);
+    searchItem = (query)=>{
+        var _query = "AND TenKho Like "+"'"+query+"%'";    
+        var _this = this ;
+        _this.khoService.getItems(_query).then(function(data){
+            var element = {
+                TenKho: <Input name="TenKho" type="text" onChange={_this.handChange} />,
+                MaKho: <Input name="MaKho" type="text" onChange={_this.handChange} />,
+                isCreate: true,
+            };
+            data.data.push(element);
+            _this.setState({
+                dataKhos: data.data,
+            })
+        })
     }
     render() {
         var _this = this;

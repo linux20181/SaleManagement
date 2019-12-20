@@ -219,8 +219,20 @@ export default class DonVi extends React.Component {
             visible: true,
         });
     }
-    searchItem(value){
-        console.log(value);
+    searchItem(query){
+        var _query = "Where TenDonVi Like "+"'"+query+"%'";
+        var _this = this ;
+        _this.donviService.getItems(_query).then(function(data){
+            var element = {
+                TenDonVi: <Input name="TenDonVi" type="text" onChange={_this.handChange} />,
+                MaDonVi: <Input name="MaDonVi" type="text" onChange={_this.handChange} />,
+                isCreate: true,
+            };
+            data.data.push(element);
+            _this.setState({
+                dataDonVis: data.data,
+            })
+        })
     }
     render() {
         var _this = this;

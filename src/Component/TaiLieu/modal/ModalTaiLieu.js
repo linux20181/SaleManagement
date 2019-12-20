@@ -68,7 +68,7 @@ export default class ModalTaiLieu extends React.Component {
         var _this = this;
         console.log(this.state);
         console.log(this.props.record);
-        var promise = [_this.loaihosoService.getItems(),_this.donviService.getItems(),_this.phongbanService.getItems()]
+        var promise = [_this.loaihosoService.getItems(""),_this.donviService.getItems(""),_this.phongbanService.getItems("")]
        
         Promise.all(promise).then(function(data){
             _this.setState({

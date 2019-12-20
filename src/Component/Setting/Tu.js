@@ -104,6 +104,34 @@ export default class Tu extends React.Component {
         }
 
     }
+    searchItem = (query)=>{
+        var _query = "AND TenTu Like "+"'"+query+"%'";    
+        var _this = this;
+        _this.khoService.getItems("").
+            then(function (data) {
+                _this.setState({
+                    dataKhos: data.data,
+                })
+                return _this.tuService.getItems(_query);
+            })
+            .then(function (data) {
+                var element = {
+                    TenTu: <Input name="TenTu" type="text" onChange={_this.handChange} />,
+                    MaTu: <Input name="MaTu" type="text" onChange={_this.handChange} />,
+                    isCreate: true,
+                };
+                data.data.push(element);
+                _this.setState({
+                    dataTus: data.data,
+                })
+
+            })
+            _this.hosoService.getItems("").then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"TuId")
+                })
+            })
+    }
     canDelete = (record)=>{
         if((_.indexOf(this.state.dataHoSos,record.IdTu) !==-1)){   
             return false;
@@ -164,9 +192,8 @@ export default class Tu extends React.Component {
     componentDidMount() {
         var _this = this;
         var query = "";
-        _this.khoService.getItems("").
+        _this.khoService.getItems(query).
             then(function (data) {
-                console.log(data)
                 _this.setState({
                     dataKhos: data.data,
                 })
@@ -184,7 +211,7 @@ export default class Tu extends React.Component {
                 })
 
             })
-            _this.hosoService.getItems("").then(function(data){
+            _this.hosoService.getItems(query).then(function(data){
                 _this.setState({
                     dataHoSos:_.map(data.data,"TuId")
                 })
@@ -216,9 +243,6 @@ export default class Tu extends React.Component {
             MaVung: null,
             visible: true,
         });
-    }
-    searchItem(value) {
-        console.log(value);
     }
     render() {
         var _this = this;

@@ -155,6 +155,29 @@ export default class Vung extends React.Component {
             [name]: value,
         })
     }
+    searchItem = (query)=>{
+        var _query = "Where TenVung Like "+"'"+query+"%'"; 
+        var _this = this; 
+        var query = "";
+        _this.vungService.getItems(_query)
+            .then(function (data) {
+                var element = {
+                    TenVung: <Input name="TenVung" type="text" onChange={_this.handChange} />,
+                    MaVung: <Input name="MaVung" type="text" onChange={_this.handChange} />,
+                    isCreate: true,
+                };
+                data.data.push(element);
+                _this.setState({
+                    dataVungs: data.data,
+                })
+            })
+        _this.khoService.getItems(query)
+            .then(function(data){
+                _this.setState({
+                    dataKhos:_.map(data.data,"IdVung"),
+                })
+            })    
+    }
     componentDidMount() {
         var _this = this;
         var query = "";
@@ -170,7 +193,7 @@ export default class Vung extends React.Component {
                     dataVungs: data.data,
                 })
             })
-        _this.khoService.getItems()
+        _this.khoService.getItems(query)
             .then(function(data){
                 _this.setState({
                     dataKhos:_.map(data.data,"IdVung"),

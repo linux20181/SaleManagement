@@ -221,7 +221,7 @@ class ChiTietHoSo extends React.Component {
     }
     componentDidMount() {
         var _this = this;
-        var promise = [_this.donviService.getItems(), _this.khoService.getItems(), _this.loaihosoService.getItems(), _this.phongbanService.getItems(), _this.vungService.getItems(), _this.tuService.getItems(), _this.logService.getItems(), _this.hosotailieuService.getItems(),_this.tailieuService.getItems()]
+        var promise = [_this.donviService.getItems(""), _this.khoService.getItems(""), _this.loaihosoService.getItems(""), _this.phongbanService.getItems(""), _this.vungService.getItems(), _this.tuService.getItems(""), _this.logService.getItems(""), _this.hosotailieuService.getItems(""),_this.tailieuService.getItems("")]
         console.log(this.props.match.params);
         var id = this.props.match.params.id;
         this.hosotailieuService.getItem(id).then(function (data) {

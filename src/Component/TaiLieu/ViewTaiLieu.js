@@ -33,13 +33,31 @@ export default class ViewTaiLieu extends React.Component{
         this.logService = new logService();
         this.tuService = new tuService();
     }
+    searchItem = (query)=>{
+        var _query = "Where TenTaiLieu Like "+"'"+query+"%'";    
+        var _this = this;
+        var promises = [
+            this.tailieuService.getItems(_query),
+            this.phongbanService.getItems(""),
+            this.donviService.getItems(""),
+            this.loaihosoService.getItems(""),   
+        ];
+        Promise.all(promises).then(function(data){
+            _this.setState({
+                dataSourceTL:data[0].data,
+                dataSourcePhongBan:data[1].data,
+                dataSourceDonVi:data[2].data,
+                dataSourceLoaiHoSo:data[3].data,
+            })
+        })
+    }
     componentDidMount(){
         var _this = this;
         var promises = [
-            this.tailieuService.getItems(),
-            this.phongbanService.getItems(),
-            this.donviService.getItems(),
-            this.loaihosoService.getItems(),   
+            this.tailieuService.getItems(""),
+            this.phongbanService.getItems(""),
+            this.donviService.getItems(""),
+            this.loaihosoService.getItems(""),   
         ];
         Promise.all(promises).then(function(data){
             _this.setState({
@@ -235,9 +253,9 @@ export default class ViewTaiLieu extends React.Component{
                  </Col>
                  <Col span = {12}>
                   <div style={{ textAlign: "right" }}>
-                    <Search
+                  <Search
                         placeholder="Tìm kiếm ..."
-                      
+                        onSearch={value => _this.searchItem(value)}
                         style={{ width: 400 }}
                     />
                     <span>

@@ -14,10 +14,6 @@ import tuService from '../../Service/tu.service';
 import logService from '../../Service/log.service';
 const { TabPane } = Tabs;
 const { Option } = Select;
-function convertTime(date) {
-  var stringDate = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.toLocaleTimeString().substring(0, date.toLocaleTimeString().length - 2);
-  return stringDate
-}
 class TaoMoiHoSo extends React.Component {
   constructor(props) {
     super(props);
@@ -222,7 +218,6 @@ class TaoMoiHoSo extends React.Component {
         <Option key={pb.IdPhongBan} value={pb.IdPhongBan}>{pb.TenPhongBan}</Option>
       )
     })
-    var optionDangVanBan = ["Bản cứng", "Bản mềm"];
     return (
       <div>
         <Tabs>

@@ -13,8 +13,6 @@ import _ from 'lodash';
 // import Siders from './Sider';
 import logo from '../../../Asset/Image/logo192.png'
 import * as APP_STATE from '../../../router';
-import PhieuMuonService from '../../../Service/phieumuon.service';
-import { deflateSync } from 'zlib';
 const { SubMenu } = Menu;
 const { Content, Sider, Header } = Layout;
 function change_alias(alias) {
@@ -139,7 +137,6 @@ export default class Contents extends React.Component {
         window.location.replace("/nhansu/chitiet/" + _this.nguoidungService.getUserCurrent().ID);
     }
     _detailPhieu(data){
-        // var _this = this;
         if(data){
             window.location.replace("/nhansu/phieunghi/" + data.IdPhieuNghi);
         }
@@ -173,7 +170,6 @@ export default class Contents extends React.Component {
 
             </Menu>
         );
-        var _array = [1,2,3];
         var _menu = null;
         if(_this.state.toDoPhieuOfMe){
             if(_this.state.toDoPhieuOfMe.TrangThaiPhieuNghi === "Đã phê duyệt"){

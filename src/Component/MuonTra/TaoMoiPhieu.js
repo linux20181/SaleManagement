@@ -60,7 +60,7 @@ const {TextArea} = Input;
     }
     componentDidMount(){
       var _this = this;
-      this.hosotailieuService.getItems().then(function(data){
+      this.hosotailieuService.getItems("").then(function(data){
         _this.setState({
           dataSourceHoSo:_.filter(data.data,function(i){
             return i.TinhTrangMuonTra ==="Lưu kho";

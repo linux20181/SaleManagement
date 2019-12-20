@@ -14,7 +14,6 @@ import logService from '../../Service/log.service';
 import tuService from '../../Service/tu.service';
 import '../../Asset/Css/common.css'
 import ModalTaiLieu from '../TaiLieu/modal/ModalTaiLieu'
-import FormTaiLieu from '../TaiLieu/FormTaiLieu';
 const { TabPane } = Tabs;
 const { Option } = Select;
 class ChiTietHoSo extends React.Component {
@@ -95,9 +94,6 @@ class ChiTietHoSo extends React.Component {
     }
     saveItem(e) {
         var _this = this;
-        var SoHieuHoSos = _.map(_this.state.dataSourceHoSoTaiLieu, function (hs) {
-            return hs.SoHieuHoSo;
-        })
         var data = this.props.form.getFieldsValue();
         if (this.validateFields(data).length > 0) {
             _this.setState({
@@ -260,7 +256,6 @@ class ChiTietHoSo extends React.Component {
     }
     componentWillMount(){
         var objj =this.state.dataSourceTL[0];
-        console.log("component will mout");
         if(objj){
             console.log(objj.NgayBanHanh.slice(0,10));
         }

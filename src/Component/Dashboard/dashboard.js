@@ -12,10 +12,10 @@ import _ from 'lodash';
     var UserCurr = JSON.parse(localStorage.getItem('User'));
     return UserCurr.Email;
 }
-function getCurrUser(){
-    var UserCurr = JSON.parse(localStorage.getItem('User'));
-    return UserCurr;
-}
+// function getCurrUser(){
+//     var UserCurr = JSON.parse(localStorage.getItem('User'));
+//     return UserCurr;
+// }
 
 export default class Home extends React.Component{
     constructor(props){

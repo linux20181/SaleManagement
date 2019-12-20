@@ -181,6 +181,13 @@ export default class ModalTaiLieu extends React.Component {
             NgayHetHan : dateString,
         })     
     }
+    isNew = ()=>{
+        if(this.props.record ===null){
+            return true;
+        }else{
+            return false;
+        }
+    }
     change(event) {
         var _this = this;
         var name = event.target.name;
@@ -194,9 +201,9 @@ export default class ModalTaiLieu extends React.Component {
         var _this = this ;
         Modal.confirm({
             title: 'Bạn có muốn xóa không ?',
-            okText: 'Yes',
+            okText: 'Có',
             okType: 'danger',
-            cancelText: 'No',
+            cancelText: 'Không',
             onOk() {
                 _this.tailieuService.deleteItem(_this.props.record.IdTaiLieu)
                     .then(function () {
@@ -261,15 +268,27 @@ export default class ModalTaiLieu extends React.Component {
                     onCancel = {this.onCancel}
                     afterClose={this.props.afterModal}
                     footer={[
+                        <div>
+                            {
+                                !this.isNew() ?
+                        <span style={{marginRight:"5px"}}>
                         <Button type = "danger" onClick = {this.removeItem} >
                           Xóa
-                        </Button>,    
+                        </Button>
+                        </span>   
+                        :null
+                            }
+                        <span style={{marginRight:"5px"}}>    
                          <Button type="primary" onClick = {this.saveItem} >
                          Lưu lại
-                       </Button>,
+                       </Button>
+                       </span>
+                       <span>
                         <Button onClick = {this.onCancel} >
                         Đóng
-                      </Button>,                   
+                      </Button>
+                      </span>
+                         </div>                 
                       ]}
                 >
                     <div style={{marginTop : "30px"}}>

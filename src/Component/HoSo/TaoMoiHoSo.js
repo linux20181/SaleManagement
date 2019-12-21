@@ -11,6 +11,7 @@ import khoService from '../../Service/kho.service';
 import phongbanService from '../../Service/phongban.service';
 import hosotailieuService from '../../Service/hosotailieu.service';
 import tuService from '../../Service/tu.service';
+import * as CONSTANT from '../../Constant/constant';
 import logService from '../../Service/log.service';
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -86,6 +87,53 @@ class TaoMoiHoSo extends React.Component {
       return validates;
     }
       return null;
+  }
+  canNotAccess = ()=>{
+    notification.error(
+        {
+            message: "Bạn không có quyền truy cập",
+            defaultValue: "topRight",
+            duration: 1,
+        }
+    )
+    this.props.history.push("/home")
+  //  return;
+}
+isAdmin = ()=>{
+    var tmp = CONSTANT.GROUP.ADMIN;
+    
+  if(this.nguoidungService.getGroupUserCurrent() === tmp){
+    return true;
+  }
+  return false;
+  }
+  isThuThu = ()=>{
+    var tmp = CONSTANT.GROUP.THUTHU;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
+  }
+  isNhanVien =()=>{
+    var tmp = CONSTANT.GROUP.NHANVIEN;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
+  }
+  isQuanLy = ()=>{
+    var tmp = CONSTANT.GROUP.QUANLY;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
+  }
+  isLanhDao = ()=>{
+    var tmp = CONSTANT.GROUP.LANHDAO;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
   }
   saveItem() {
     var _this =this;
@@ -168,7 +216,10 @@ class TaoMoiHoSo extends React.Component {
   componentDidMount() {
     console.log(this.props.location);
     var _this = this;
-
+    if(!this.isThuThu() || !this.isAdmin()){
+      this.canNotAccess();
+      return;
+    }
     var promises = [_this.loaihosoService.getItems(""), _this.donviService.getItems(""), _this.vungService.getItems(""),_this.hosotailieuService.getItems("")];
     Promise.all(promises).then(function (data) {
       _this.setState({

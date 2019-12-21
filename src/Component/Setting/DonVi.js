@@ -5,7 +5,9 @@ import donviService from '../../Service/donvi.service';
 import phongbanService from '../../Service/phongban.service';
 import hosoService from '../../Service/hosotailieu.service';
 import tailieuService from '../../Service/tailieu.service';
+import nguoidungService from '../../Service/nguoidung.service';
 import ExportExel from '../Common/Export/ExportExel';
+import * as CONSTANT from '../../Constant/constant';
 import _ from 'lodash';
 const { Search } = Input;
 
@@ -23,6 +25,7 @@ export default class DonVi extends React.Component {
             dataTLs:[],
             count: 1,
         };
+        this.nguoidungService = new nguoidungService();
         this.hosoService = new hosoService();
         this.tailieuService = new tailieuService();
         this.phongbanService = new phongbanService();
@@ -34,6 +37,53 @@ export default class DonVi extends React.Component {
         this.cancel = this.cancel.bind(this);
         this.isEditting = this.isEditting.bind(this);
     }
+    canNotAccess = ()=>{
+        notification.error(
+            {
+                message: "Bạn không có quyền truy cập",
+                defaultValue: "topRight",
+                duration: 1,
+            }
+        )
+        this.props.history.push("/home")
+      //  return;
+    }
+    isAdmin = ()=>{
+        var tmp = CONSTANT.GROUP.ADMIN;
+        
+      if(this.nguoidungService.getGroupUserCurrent() === tmp){
+        return true;
+      }
+      return false;
+      }
+      isThuThu = ()=>{
+        var tmp = CONSTANT.GROUP.THUTHU;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isNhanVien =()=>{
+        var tmp = CONSTANT.GROUP.NHANVIEN;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isQuanLy = ()=>{
+        var tmp = CONSTANT.GROUP.QUANLY;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isLanhDao = ()=>{
+        var tmp = CONSTANT.GROUP.LANHDAO;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
     cancel() {
         this.setState({ visible: false });
     }
@@ -163,6 +213,10 @@ export default class DonVi extends React.Component {
     }
     componentDidMount() {
         var _this = this;
+        if(!this.isThuThu() || !this.isAdmin()){
+            this.canNotAccess();
+            return;
+          }
         var query = "";
         _this.donviService.getItems(query)
             .then(function (data) {

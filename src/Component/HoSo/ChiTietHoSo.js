@@ -12,7 +12,9 @@ import hosotailieuService from '../../Service/hosotailieu.service';
 import tailieuService from '../../Service/tailieu.service';
 import logService from '../../Service/log.service';
 import tuService from '../../Service/tu.service';
+import nguoidungService from '../../Service/nguoidung.service';
 import '../../Asset/Css/common.css'
+import * as CONSTANT from '../../Constant/constant';
 import ModalTaiLieu from '../TaiLieu/modal/ModalTaiLieu'
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -38,6 +40,7 @@ class ChiTietHoSo extends React.Component {
             blocking: true,
             record:null,
         };
+        this.nguoidungService = new nguoidungService();
         this.khoService = new khoService();
         this.tailieuService = new tailieuService();
         this.vungService = new vungService();
@@ -217,6 +220,10 @@ class ChiTietHoSo extends React.Component {
     }
     componentDidMount() {
         var _this = this;
+        if(!this.isThuThu() || !this.isAdmin()){
+            this.canNotAccess();
+            return;
+          }
         var promise = [_this.donviService.getItems(""), _this.khoService.getItems(""), _this.loaihosoService.getItems(""), _this.phongbanService.getItems(""), _this.vungService.getItems(), _this.tuService.getItems(""), _this.logService.getItems(""), _this.hosotailieuService.getItems(""),_this.tailieuService.getItems("")]
         console.log(this.props.match.params);
         var id = this.props.match.params.id;
@@ -260,6 +267,53 @@ class ChiTietHoSo extends React.Component {
             console.log(objj.NgayBanHanh.slice(0,10));
         }
     }
+    canNotAccess = ()=>{
+        notification.error(
+            {
+                message: "Bạn không có quyền truy cập",
+                defaultValue: "topRight",
+                duration: 1,
+            }
+        )
+        this.props.history.push("/hoso/danhsach")
+      //  return;
+    }
+    isAdmin = ()=>{
+        var tmp = CONSTANT.GROUP.ADMIN;
+        
+      if(this.nguoidungService.getGroupUserCurrent() === tmp){
+        return true;
+      }
+      return false;
+      }
+      isThuThu = ()=>{
+        var tmp = CONSTANT.GROUP.THUTHU;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isNhanVien =()=>{
+        var tmp = CONSTANT.GROUP.NHANVIEN;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isQuanLy = ()=>{
+        var tmp = CONSTANT.GROUP.QUANLY;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isLanhDao = ()=>{
+        var tmp = CONSTANT.GROUP.LANHDAO;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
     removeItem (){
         var _this = this ;
         Modal.confirm({

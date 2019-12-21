@@ -4,6 +4,7 @@ import { Form, Input, Button, Row, Col ,notification, message ,Select} from 'ant
 import nguoidungService from '../../Service/nguoidung.service';
 import { Tabs } from 'antd';
 import _ from 'lodash';
+import * as CONSTANT from '../../Constant/constant';
 const {Option} = Select;
 const { TabPane } = Tabs;
 class AddHuman extends React.Component {
@@ -53,6 +54,55 @@ class AddHuman extends React.Component {
     }
       return null;
   }
+
+  canNotAccess = ()=>{
+    notification.error(
+        {
+            message: "Bạn không có quyền truy cập",
+            defaultValue: "topRight",
+            duration: 1,
+        }
+    )
+    this.props.history.push("/home")
+  //  return;
+}
+isAdmin = ()=>{
+    var tmp = CONSTANT.GROUP.ADMIN;
+    
+  if(this.nguoidungService.getGroupUserCurrent() === tmp){
+    return true;
+  }
+  return false;
+  }
+  isThuThu = ()=>{
+    var tmp = CONSTANT.GROUP.THUTHU;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
+  }
+  isNhanVien =()=>{
+    var tmp = CONSTANT.GROUP.NHANVIEN;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
+  }
+  isQuanLy = ()=>{
+    var tmp = CONSTANT.GROUP.QUANLY;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
+  }
+  isLanhDao = ()=>{
+    var tmp = CONSTANT.GROUP.LANHDAO;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
+  }
+
   handleSubmit() {
     var _this = this;
     var data = this.props.form.getFieldsValue()
@@ -92,7 +142,10 @@ class AddHuman extends React.Component {
       })
   }
   componentDidMount() {
-
+    if(!this.isAdmin()){
+      this.canNotAccess();
+      return;
+    }
     }
   onChangeQuanLy(event){
     var _this = this;

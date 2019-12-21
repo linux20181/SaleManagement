@@ -16,13 +16,11 @@ ReactDOM.render(
         <Router>
             {isLogin() ? <div>
                 <App/>
-                 {/* <Route path='/home' component={App} /> */}
-                {/* <Redirect to="/home" />  */}
                 </div>
              :
                 <div>
                 <Route path='/login' component={Login} />
-                <Redirect to="/login" />
+                <Redirect to="/login" />             
                 </div>
             }
         </Router>

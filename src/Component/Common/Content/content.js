@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import 'react-block-ui/style.css';
-import { Layout, Breadcrumb, Menu, Icon, Avatar, Badge, Dropdown } from 'antd';
+import { Layout, Breadcrumb, Menu, Icon, Avatar, Badge, Dropdown,notification } from 'antd';
 import { BrowserRouter as Router, Route, Link  } from "react-router-dom";
 import { IoIosPricetags  } from "react-icons/io";
 import * as CONSTANT from '../../../Constant/constant';
@@ -43,6 +43,7 @@ function convetHoTen(str){
     })
     return _str.toUpperCase();
 }
+
 export default class Contents extends React.Component {
     constructor(props) {
         super(props);
@@ -58,7 +59,18 @@ export default class Contents extends React.Component {
         this.detailInfo = this.detailInfo.bind(this);
         this._detailPhieu = this._detailPhieu.bind(this);
     }
-    isAdmin(){
+    canNotAccess = ()=>{
+        notification.error(
+            {
+                message: "Bạn không có quyền truy cập",
+                defaultValue: "topRight",
+                duration: 1,
+            }
+        )
+        
+      //  return;
+    }
+    isAdmin = ()=>{
         var tmp = CONSTANT.GROUP.ADMIN;
         
       if(this.nguoidungService.getGroupUserCurrent() === tmp){
@@ -66,8 +78,29 @@ export default class Contents extends React.Component {
       }
       return false;
       }
-      isThuThu(){
+      isThuThu = ()=>{
         var tmp = CONSTANT.GROUP.THUTHU;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isNhanVien =()=>{
+        var tmp = CONSTANT.GROUP.NHANVIEN;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isQuanLy = ()=>{
+        var tmp = CONSTANT.GROUP.QUANLY;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isLanhDao = ()=>{
+        var tmp = CONSTANT.GROUP.LANHDAO;
         if(this.nguoidungService.getGroupUserCurrent() === tmp){
           return true;
         }
@@ -260,14 +293,26 @@ export default class Contents extends React.Component {
                                     defaultOpenKeys={['sub1']}
                                     style={{ height: '100%' }}
                                 >
-                                    <Menu.Item key="123">     
+                                    {
+                                        this.isThuThu() || this.isAdmin() ?
+                                        <Menu.Item key="123">     
                                         <Link to ="/home">
                                             <span>
                                                 <Icon type="pie-chart" />                                             
                                                 Dashboard
                                             </span>  
                                             </Link>                                                                                                                      
-                                    </Menu.Item>
+                                        </Menu.Item>
+                                    : 
+                                    <Menu.Item key="123">     
+                                        <Link to ="/home">
+                                            <span>
+                                                <Icon type="pie-chart" />                                             
+                                                Trang chủ
+                                            </span>  
+                                            </Link>                                                                                                                      
+                                        </Menu.Item>
+                                    }
                                     <SubMenu
                                         key="sub1"
                                         title={
@@ -282,6 +327,8 @@ export default class Contents extends React.Component {
                                     { this.isAdmin() ? <Menu.Item key="11"><Link to={APP_STATE.APP_STATE.NHANSU.ADDHUMAN.url}>Bổ sung nhân sự</Link></Menu.Item> : null}
                                         <Menu.Item key="4"><Link to={APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.url}>Đăng ký nghỉ</Link></Menu.Item>
                                     </SubMenu>
+                                    {
+                                        this.isThuThu() || this.isAdmin()?
                                     <SubMenu
                                         key="sub2"
                                         title={
@@ -310,18 +357,26 @@ export default class Contents extends React.Component {
                                             <Link to={APP_STATE.APP_STATE.SETTING.TU.url}>Tủ</Link>
                                         </Menu.Item>
                                     </SubMenu>
-                                    <SubMenu
+                                    : null
+                                    }   
+
+                                    {
+                                        this.isThuThu() || this.isAdmin() ?
+                                        <SubMenu
                                         key="sub3"
                                         title={
                                             <span>
                                                 <Icon type="notification" />
                                                  Thiết lập chung
-                </span>
+                                       </span>
                                         }
-                                    >
+                                        >
                                         <Menu.Item key="12"><Link to={APP_STATE.APP_STATE.HOSO.TAOMOIHOSO.url}> Tạo mới hồ sơ</Link></Menu.Item>
-                                        <Menu.Item key="13">Chỉnh sửa hồ sơ</Menu.Item>                             
+                                                                  
                                     </SubMenu>
+                                    :null
+                                    }
+                                    
                                     <SubMenu
                                         key="sub4"
                                         title={
@@ -331,14 +386,16 @@ export default class Contents extends React.Component {
                 </span>
                                         }
                                     >
-                                        <Menu.Item key="16"><Link to = {APP_STATE.APP_STATE.HOSO.DANHSACHHOSO.url}>Danh sách hồ sơ</Link></Menu.Item>
-                                        <Menu.Item key="17"> <Link to = {APP_STATE.APP_STATE.TAILIEU.DANHSACHTAILIEU.url}>Danh sách tài liệu</Link></Menu.Item>
-                                        <Menu.Item key="19">Yêu cầu cần xử lý</Menu.Item>
+                                        <Menu.Item key="16"><Link to = {APP_STATE.APP_STATE.HOSO.DANHSACHHOSO.url}>Danh sách hồ sơ</Link></Menu.Item>                                                          
+                                           <Menu.Item key="17"> <Link to = {APP_STATE.APP_STATE.TAILIEU.DANHSACHTAILIEU.url}>Danh sách tài liệu</Link></Menu.Item>
+                                        
                                     </SubMenu>
-                                    <SubMenu
-                                    key = "sub5"
-                                    title={
-                                        <div>
+                                    {
+                                        this.isNhanVien()||this.isQuanLy()||this.isLanhDao()?
+                                        <SubMenu
+                                        key = "sub5"
+                                        title={
+                                            <div>
                                         <IoIosPricetags />
                                             <span>
                                             Đăng ký mượn
@@ -347,16 +404,23 @@ export default class Contents extends React.Component {
                                     }
                                     >
                                         <Menu.Item key="33"><Link to = {APP_STATE.APP_STATE.DANGKYMUON.TAOMOI.url}>Tạo phiếu đăng ký</Link></Menu.Item> 
-                                        <Menu.Item key="34"><Link to = {APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.url}>Danh sách phiếu </Link></Menu.Item> 
+                                       
+                                       {
+                                             this.isThuThu() || this.isAdmin()?
+                                           <Menu.Item key="34"><Link to = {APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.url}>Danh sách phiếu </Link></Menu.Item> 
+                                                : null
+                                        }
                                         </SubMenu>
+                                        :null
+                                }
                                 </Menu>
                             </Sider>                     
                             <Content style={{ padding: '0 24px', minHeight: 280 }}>
                             <Route exact path={APP_STATE.APP_STATE.NHANSU.DETAILPHIEUNGHI.url} component = {APP_STATE.APP_STATE.NHANSU.DETAILPHIEUNGHI.component} />
                             <Route exact path={APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.url} component = {APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.component} />
                             <Route exact path={APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.url} component = {APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.component} />
-                            <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.url} component = {APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.component} /> 
-                            <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.url} component = {APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.component} /> 
+                            <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.url} component = {APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.component} />                                                                               
+                            <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.url} component = {APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.component} />                                                    
                             <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.TAOMOI.url} component = {APP_STATE.APP_STATE.DANGKYMUON.TAOMOI.component} /> 
                             <Route exact path={APP_STATE.APP_STATE.TAILIEU.DANHSACHTAILIEU.url} component = {APP_STATE.APP_STATE.TAILIEU.DANHSACHTAILIEU.component} />                           
                             <Route exact path={APP_STATE.APP_STATE.HOME.url} component = {APP_STATE.APP_STATE.HOME.component} />                               
@@ -370,7 +434,7 @@ export default class Contents extends React.Component {
                             <Route exact path={APP_STATE.APP_STATE.SETTING.DONVI.url} component={APP_STATE.APP_STATE.SETTING.DONVI.component} />
                             <Route exact path={APP_STATE.APP_STATE.SETTING.KHO.url} component={APP_STATE.APP_STATE.SETTING.KHO.component} />
                             <Route exact path={APP_STATE.APP_STATE.SETTING.VUNG.url} component={APP_STATE.APP_STATE.SETTING.VUNG.component} />
-                            <Route exact path={APP_STATE.APP_STATE.SETTING.LOAIHOSO.url} component={APP_STATE.APP_STATE.SETTING.LOAIHOSO.component} />
+                            <Route exact path={APP_STATE.APP_STATE.SETTING.LOAIHOSO.url} component={APP_STATE.APP_STATE.SETTING.LOAIHOSO.component} />         
                             </Content>
                         </Layout>
                     </Content>

@@ -15,4 +15,8 @@ export const TRANGTHAI = {
 export const GROUP = {
     ADMIN : "SM_Admin",
     THUTHU:"SM_ThuThu",
+    NHANVIEN:"SM_NhanVien",
+    LANHDAO : "SM_LanhDao",
+    QUANLY:"SM_QuanLy",
+    
 }

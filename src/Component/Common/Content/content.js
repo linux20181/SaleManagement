@@ -389,8 +389,12 @@ export default class Contents extends React.Component {
                                         }
                                     >
                                         <Menu.Item key="16"><Link to = {APP_STATE.APP_STATE.HOSO.DANHSACHHOSO.url}>Danh sách hồ sơ</Link></Menu.Item>                                                          
-                                           <Menu.Item key="17"> <Link to = {APP_STATE.APP_STATE.TAILIEU.DANHSACHTAILIEU.url}>Danh sách tài liệu</Link></Menu.Item>
-                                        
+                                        <Menu.Item key="17"> <Link to = {APP_STATE.APP_STATE.TAILIEU.DANHSACHTAILIEU.url}>Danh sách tài liệu</Link></Menu.Item>
+                                        {
+                                             this.isThuThu() || this.isAdmin()?
+                                           <Menu.Item key="34"><Link to = {APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.url}>Danh sách phiếu </Link></Menu.Item> 
+                                                : null
+                                        }
                                     </SubMenu>
                                     {
                                         this.isNhanVien()||this.isQuanLy()||this.isLanhDao()?
@@ -405,13 +409,7 @@ export default class Contents extends React.Component {
                                             </div>
                                     }
                                     >
-                                        <Menu.Item key="33"><Link to = {APP_STATE.APP_STATE.DANGKYMUON.TAOMOI.url}>Tạo phiếu đăng ký</Link></Menu.Item> 
-                                       
-                                       {
-                                             this.isThuThu() || this.isAdmin()?
-                                           <Menu.Item key="34"><Link to = {APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.url}>Danh sách phiếu </Link></Menu.Item> 
-                                                : null
-                                        }
+                                        <Menu.Item key="33"><Link to = {APP_STATE.APP_STATE.DANGKYMUON.TAOMOI.url}>Tạo phiếu đăng ký</Link></Menu.Item>                                                
                                         </SubMenu>
                                         :null
                                 }

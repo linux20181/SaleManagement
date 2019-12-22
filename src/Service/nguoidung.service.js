@@ -24,6 +24,17 @@ async authenUser(data) {
       data: data,
   })
 }
+
+async changePassUser(data) {
+  axios.defaults.headers.common['Authorization'] = 'AUTH_TOKEN';
+  axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+  return axios({
+      url: `${Constant.URL_HOST}/changepass/${this.endpoint}`,
+      method: `${Constant.METHOD.POST}`,
+      data: data,
+  })
+}
+
 getUserCurrent(){
  return JSON.parse(localStorage.getItem('User'));
 }

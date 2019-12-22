@@ -18,6 +18,7 @@ import ChiTietPhieu from './Component/MuonTra/ChiTietPhieu';
 import DetailHuman from './Component/Human/DetailHuman';
 import DangKyNghi from './Component/Human/DangKyNghi';
 import DetailPhieu from './Component/Human/DetailPhieu';
+import ChangePass from './Authentication/ChangePass';
 export const APP_STATE = {
     HOME :{
         url:"/home",
@@ -109,6 +110,10 @@ export const APP_STATE = {
         url: '/login',
         component : Login,
     },
+    AUTHEN :{
+        url:'/nguoidung/doimatkhau',
+        component : ChangePass,
+    }
     // APP : {
     //     url : '/home',
     //     component :App,

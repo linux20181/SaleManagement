@@ -164,7 +164,7 @@ export default class Contents extends React.Component {
             window.location.reload();
         }
     }
-   
+    
     detailInfo(){      
         var _this =this
         window.location.replace("/nhansu/chitiet/" + _this.nguoidungService.getUserCurrent().ID);
@@ -191,9 +191,11 @@ export default class Contents extends React.Component {
                 </a>
                 </Menu.Item>
                 <Menu.Item>
-                    <a onClick={null}>
-                       Đổi mật khẩu
-                </a>
+                <Link to ={APP_STATE.APP_STATE.AUTHEN.url}>
+                                            <span>                                                                                       
+                                               Đổi mật khẩu
+                                            </span>  
+                                            </Link> 
                 </Menu.Item>
                 <Menu.Item>
                     <a onClick={this.isLogout}>
@@ -416,6 +418,7 @@ export default class Contents extends React.Component {
                                 </Menu>
                             </Sider>                     
                             <Content style={{ padding: '0 24px', minHeight: 280 }}>
+                            <Route exact path={APP_STATE.APP_STATE.AUTHEN.url} component = {APP_STATE.APP_STATE.AUTHEN.component} />
                             <Route exact path={APP_STATE.APP_STATE.NHANSU.DETAILPHIEUNGHI.url} component = {APP_STATE.APP_STATE.NHANSU.DETAILPHIEUNGHI.component} />
                             <Route exact path={APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.url} component = {APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.component} />
                             <Route exact path={APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.url} component = {APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.component} />

@@ -414,6 +414,44 @@ app.post('/register/nguoidungs', (req, res) => {
     })
   }
 })
+
+app.post('/register/nguoidungs', (req, res) => {
+  var MatKhau = bcrypt.hashSync(req.body.MatKhau, saltRounds)
+  var values = [
+    [req.body.HoTen, req.body.Tuoi, req.body.Email, MatKhau, req.body.ViTri, req.body.Phone, req.body.GroupOfUser, req.body.PhongBan, req.body.Cap, req.body.DiaChi, req.body.QuanLy]
+  ];
+  if (req.body.ID === undefined) {
+    connection.query("INSERT INTO users (HoTen,Tuoi,Email,MatKhau,ViTri,Phone,GroupOfUser,PhongBan,Cap,DiaChi,QuanLy) VALUES ?", [values], function (err, result) {
+      if (err) {
+        console.log(err);
+      }
+      console.log("Create");
+      res.send(result);
+    })
+  }
+  if (req.body.ID) {
+    connection.query("UPDATE users SET DiaChi= ? , Tuoi = ? , Phone = ?   WHERE ID= ?", [req.body.DiaChi, req.body.Tuoi, req.body.Phone, req.body.ID], function (err, result) {
+      if (err) {
+        console.log(err);
+      }
+      console.log("Update");
+      res.send(result);
+    })
+  }
+})
+
+app.post('/changepass/nguoidungs', (req, res) => {
+  var MatKhau = bcrypt.hashSync(req.body.MatKhau, saltRounds)
+  if (req.body.ID) {
+    connection.query("UPDATE users SET MatKhau= ?  WHERE ID= ?", [MatKhau, req.body.ID], function (err, result) {
+      if (err) {
+        console.log(err);
+      }
+      res.send(result);
+    })
+  }
+})
+
 //----------------------------------------------Tủ
 app.get('/tus', (req, res) => {
   var query_ = "";

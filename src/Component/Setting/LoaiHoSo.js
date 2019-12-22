@@ -154,7 +154,7 @@ export default class LoaiHoSo extends React.Component {
         }
         var TenLoaiHoSos = _.map(dataSource, function (lhs) { return lhs.TenLoaiHoSo });
         var MaLoaiHoSos = _.map(dataSource, function (lhs) { return lhs.MaLoaiHoSo });      
-        if (this.state.TenLoaiHoSo === "" || this.state.MaLoaiHoSo === "") {
+        if (this.state.TenLoaiHoSo === null || this.state.MaLoaiHoSo === null) {
             var messages = "Vui lòng nhập đủ trường thông tin ";
             message.warning(messages);
             return;
@@ -289,7 +289,7 @@ export default class LoaiHoSo extends React.Component {
     }
     componentDidMount() {
         var _this = this;
-        if(!this.isThuThu() || !this.isAdmin()){
+        if(!this.isThuThu() && !this.isAdmin()){
             this.canNotAccess();
             return;
           }

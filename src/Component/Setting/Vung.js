@@ -230,7 +230,7 @@ export default class Vung extends React.Component {
     }
     componentDidMount() {
         var _this = this;
-        if(!this.isThuThu() || !this.isAdmin()){
+        if(!this.isThuThu() && !this.isAdmin()){
             this.canNotAccess();
             return;
           }

@@ -216,7 +216,7 @@ isAdmin = ()=>{
   componentDidMount() {
     console.log(this.props.location);
     var _this = this;
-    if(!this.isThuThu() || !this.isAdmin()){
+    if(!this.isThuThu() &&  !this.isAdmin()){
       this.canNotAccess();
       return;
     }

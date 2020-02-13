@@ -17,6 +17,7 @@ import DanhSachPhieu from './Component/MuonTra/DanhSachPhieu';
 import ChiTietPhieu from './Component/MuonTra/ChiTietPhieu';
 import DetailHuman from './Component/Human/DetailHuman';
 import DangKyNghi from './Component/Human/DangKyNghi';
+import ToDoList from './Component/Common/ToDoList/ToDoList';
 export const APP_STATE = {
     HOME :{
         url:"/home",
@@ -104,6 +105,10 @@ export const APP_STATE = {
         url: '/login',
         component : Login,
     },
+    TODOLIST : {
+        url:'/todolist',
+        component : ToDoList,
+    }
     // APP : {
     //     url : '/home',
     //     component :App,

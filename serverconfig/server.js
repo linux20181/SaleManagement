@@ -3,8 +3,8 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+const sendmail = require('sendmail');
 var bcrypt = require('bcrypt');
-var cookie = require('cookie');
 var jwt = require('jsonwebtoken');
 const saltRounds = 10;
 const corsOptions = {
@@ -67,7 +67,6 @@ app.get('/phieumuons/:id',(req,res)=>{
   })
 })
 app.post('/api/phieumuons',(req,res)=>{
-  console.log(req.body);
   var values = [
     [req.body.MaPhieuMuon,req.body.TenPhieuMuon,req.body.ThoiGianMuon,req.body.ThoiGianTra,req.body.MucDichMuon,req.body.TenHoSoMuonId,req.body.TrangThai,req.body.Author]
   ];
@@ -77,6 +76,15 @@ app.post('/api/phieumuons',(req,res)=>{
       if (err) {
         console.log(err);
       }
+      sendmail({
+        from: 'cu.pv165081@sis.hust.edu.vn',
+        to: 'phamvancu19981998@gmail.com',
+        subject: 'test sendmail',
+        html: 'Mail of test sendmail ',
+      }, function(err, reply) {
+        console.log(err && err.stack);
+        console.dir(reply);
+    });
       res.send(result);
     })
   }else{

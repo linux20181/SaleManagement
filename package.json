@@ -30,7 +30,8 @@
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.2.0",
-    "react-tree-graph": "^4.0.1"
+    "react-tree-graph": "^4.0.1",
+    "sendmail": "^1.6.1"
   },
   "scripts": {
     "start": "react-scripts start",

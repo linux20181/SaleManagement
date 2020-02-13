@@ -113,7 +113,6 @@ export default class Contents extends React.Component {
                             </Menu.Item>
                             <Menu.Item key="2">Phòng ban</Menu.Item>
                             <Menu.Item key="3" style={{ float: 'right' }}>
-
                                 <Dropdown overlay={menu} placement="bottomLeft">
                                 <a style={{}}>{this.nguoidungService.getUserCurrent().HoTen}</a>
                                 </Dropdown>
@@ -125,10 +124,13 @@ export default class Contents extends React.Component {
         <Avatar >{convetHoTen(this.nguoidungService.getUserCurrent().HoTen)}</Avatar>
                                     </Badge>
                                 </span></Menu.Item>
-
-
+                                <Menu.Item> 
+                                
+                                </Menu.Item>
                         </Menu>
-                    </Header>    
+
+                    </Header>
+                                
                     <Content style={{ padding: '0 50px' }}>
                         <Breadcrumb style={{ margin: '16px 0' }}>
                             {/* <Breadcrumb.Item>Trang chủ</Breadcrumb.Item>

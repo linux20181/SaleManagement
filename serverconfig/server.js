@@ -2,14 +2,9 @@ const express = require('express');
 const _mysql = require('./Data/connection');
 const cors = require('cors');
 const app = express();
-<<<<<<< HEAD
-const sendmail = require('sendmail');
-var bcrypt = require('bcrypt');
-=======
 const saltRounds = 10;
 var bcrypt = require('bcrypt');
 var bodyParser = require('body-parser');
->>>>>>> 56f05bb187458f6bcb5f248c8ad5d685d88391e9
 var jwt = require('jsonwebtoken');
 var SendMail = require('./Mail/SendMail');
 const corsOptions = {
@@ -205,13 +200,9 @@ app.get('/phieumuons/:id', (req, res) => {
     res.send(result);
   })
 })
-<<<<<<< HEAD
-app.post('/api/phieumuons',(req,res)=>{
-=======
 
 app.post('/api/phieumuons', (req, res) => {
   console.log(req.body);
->>>>>>> 56f05bb187458f6bcb5f248c8ad5d685d88391e9
   var values = [
     [req.body.MaPhieuMuon, req.body.TenPhieuMuon, req.body.ThoiGianMuon, req.body.ThoiGianTra, req.body.MucDichMuon, req.body.TenHoSoMuonId, req.body.TrangThai, req.body.Author]
   ];
@@ -225,20 +216,8 @@ app.post('/api/phieumuons', (req, res) => {
       if (err) {
         console.log(err);
       }
-<<<<<<< HEAD
-      sendmail({
-        from: 'cu.pv165081@sis.hust.edu.vn',
-        to: 'phamvancu19981998@gmail.com',
-        subject: 'test sendmail',
-        html: 'Mail of test sendmail ',
-      }, function(err, reply) {
-        console.log(err && err.stack);
-        console.dir(reply);
-    });
-=======
 
       SendMail.sendMail(req.body.Author, 'Xác nhận mượn tài liệu', content);
->>>>>>> 56f05bb187458f6bcb5f248c8ad5d685d88391e9
       res.send(result);
     })
   } else {

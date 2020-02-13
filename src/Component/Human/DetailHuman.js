@@ -64,12 +64,13 @@ export default class DetailHuman extends React.Component {
       if(this.state.DiaChi){
         this.state.currUser.DiaChi = this.state.DiaChi;
       }
-      if(this.state.DiaChi){
+      if(this.state.Phone){
         this.state.currUser.Phone = this.state.Phone;
       }
-      if(this.state.DiaChi){
+      if(this.state.Tuoi){
         this.state.currUser.Tuoi = this.state.Tuoi;
       }
+      console.log(this.state);
       this.setState({
         currUser : _this.state.currUser,
       })

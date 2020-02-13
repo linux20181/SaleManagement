@@ -5,7 +5,6 @@ import Contents from './Component/Common/Content/content';
 import Footers from './Component/Common/Footer/footer';
 import 'react-block-ui/style.css';
 import BlockUi from 'react-block-ui';
-import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -25,6 +24,7 @@ componentDidMount(){
    
   render() {
     return (
+            
         <BlockUi tag="div" blocking={this.state.blocking}>
       <div >
         <div >
@@ -37,6 +37,7 @@ componentDidMount(){
         </div>
       </div>
         </BlockUi>
+     
     );
   }
 }

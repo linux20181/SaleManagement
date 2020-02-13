@@ -1,11 +1,13 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import 'react-block-ui/style.css';
-import { Layout, Breadcrumb, Menu, Icon, Avatar, Badge, Dropdown } from 'antd';
+import { Layout, Breadcrumb, Menu, Icon, Avatar, Badge, Dropdown,notification } from 'antd';
 import { BrowserRouter as Router, Route, Link  } from "react-router-dom";
-import { IoIosPricetags ,IoMdAdd } from "react-icons/io";
+import { IoIosPricetags  } from "react-icons/io";
 import * as CONSTANT from '../../../Constant/constant';
 import nguoidungService from '../../../Service/nguoidung.service';
+import phieunghiService from '../../../Service/phieunghi.service';
+import phieumuonService from '../../../Service/phieumuon.service';
 import 'react-block-ui/style.css';
 import _ from 'lodash';
 // import Siders from './Sider';
@@ -41,15 +43,34 @@ function convetHoTen(str){
     })
     return _str.toUpperCase();
 }
+
 export default class Contents extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            toDoPhieuNghi:null,
+            redirect:false,
+            toDoPhieuOfMe:null
+        };
         this.isLogout = this.isLogout.bind(this);
         this.nguoidungService = new nguoidungService();
+        this.phieunghiService = new phieunghiService();
+        this.phieumuonService = new phieumuonService();
         this.detailInfo = this.detailInfo.bind(this);
+        this._detailPhieu = this._detailPhieu.bind(this);
     }
-    isAdmin(){
+    canNotAccess = ()=>{
+        notification.error(
+            {
+                message: "Bạn không có quyền truy cập",
+                defaultValue: "topRight",
+                duration: 1,
+            }
+        )
+        
+      //  return;
+    }
+    isAdmin = ()=>{
         var tmp = CONSTANT.GROUP.ADMIN;
         
       if(this.nguoidungService.getGroupUserCurrent() === tmp){
@@ -57,15 +78,84 @@ export default class Contents extends React.Component {
       }
       return false;
       }
-      isThuThu(){
+      isThuThu = ()=>{
         var tmp = CONSTANT.GROUP.THUTHU;
         if(this.nguoidungService.getGroupUserCurrent() === tmp){
           return true;
         }
         return false;
       }
+      isNhanVien =()=>{
+        var tmp = CONSTANT.GROUP.NHANVIEN;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isQuanLy = ()=>{
+        var tmp = CONSTANT.GROUP.QUANLY;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isLanhDao = ()=>{
+        var tmp = CONSTANT.GROUP.LANHDAO;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
     componentDidMount() {
+       
+        var _this = this;
         this.isAdmin();
+        this.getPhieuNghiCanPheDuyet().then(function(data){
+            _this.setState({
+                toDoPhieuNghi:_.filter(data.data,function(d){
+                    return d.NguoiPheDuyet === _this.nguoidungService.getUserCurrent().ID && d.TrangThaiPhieuNghi ==="Chờ xử lý";
+                }),
+            })
+        }).then(function(){
+            _this.getPhieuOfMe().then(function(data){
+                if(data.length > 0){
+                    if(new Date(data[0].ThoiGianKetThuc) < new Date()){
+                        // console.log(new Date(data[0].ThoiGianKetThuc));
+                        // console.log(new Date());
+                        _this.phieunghiService.deleteItem(data[0].IdPhieuNghi).then(function(){
+                            
+                        })
+                    }
+                }
+                    _this.setState({
+                        toDoPhieuOfMe:data[0],
+                    })
+            })
+        });
+        
+    }
+    getPhieuNghiCanPheDuyet = async ()=>{
+        return this.phieunghiService.getItems().then(function (data){
+            return data;
+            // _this.setState({
+            //     toDoPhieuNghi:_.filter(data.data,function(d){
+            //         return d.NguoiPheDuyet === _this.nguoidungService.getUserCurrent().ID;
+            //     }),
+            // })
+        })
+    }
+    getPhieuOfMe = async ()=>{
+        var _this = this;
+        return this.phieunghiService.getItems().then(function (data){
+            return _.filter(data.data,function(d){
+                return d.IdNguoiDangKy === _this.nguoidungService.getUserCurrent().ID;
+            })
+            // _this.setState({
+            //     toDoPhieuNghi:_.filter(data.data,function(d){
+            //         return d.NguoiPheDuyet === _this.nguoidungService.getUserCurrent().ID;
+            //     }),
+            // })
+        })
     }
     isLogout(){
         if(localStorage.getItem('ID')){
@@ -74,18 +164,38 @@ export default class Contents extends React.Component {
             window.location.reload();
         }
     }
-   
+    
     detailInfo(){      
         var _this =this
         window.location.replace("/nhansu/chitiet/" + _this.nguoidungService.getUserCurrent().ID);
     }
+    _detailPhieu(data){
+        if(data){
+            window.location.replace("/nhansu/phieunghi/" + data.IdPhieuNghi);
+        }
+        return;    
+    }
     render() {
+        console.log(this.state);
+        var _this =this;
         const menu = (
             <Menu>
                 <Menu.Item>
                     <a onClick={this.detailInfo} >
                         Thông tin cá nhân
                 </a>
+                </Menu.Item>
+                <Menu.Item>
+                    <a onClick={this._detailPhieu.bind(this,_this.state.toDoPhieuOfMe)} >
+                        Phiếu nghỉ của tôi
+                </a>
+                </Menu.Item>
+                <Menu.Item>
+                <Link to ={APP_STATE.APP_STATE.AUTHEN.url}>
+                                            <span>                                                                                       
+                                               Đổi mật khẩu
+                                            </span>  
+                                            </Link> 
                 </Menu.Item>
                 <Menu.Item>
                     <a onClick={this.isLogout}>
@@ -95,6 +205,44 @@ export default class Contents extends React.Component {
 
             </Menu>
         );
+        var _menu = null;
+        if(_this.state.toDoPhieuOfMe){
+            if(_this.state.toDoPhieuOfMe.TrangThaiPhieuNghi === "Đã phê duyệt"){
+                var _tmp = (
+                    <Menu.Item onClick={ _this._detailPhieu.bind(this,this.state.toDoPhieuOfMe) }>
+                        <div >
+                            <span>Phiếu đăng ký nghỉ </span>
+                    {this.state.toDoPhieuOfMe.MaPhieuNghi}
+                <span> đã được phê duyệt</span>
+                    </div>
+                    </Menu.Item>    
+            );
+        }
+        }
+        if(this.state.toDoPhieuNghi){       
+             _menu = this.state.toDoPhieuNghi.map(function(data){
+                return(
+                    <Menu.Item onClick={ _this._detailPhieu.bind(this,data) }>
+                        <div >
+                            <span>Phiếu nghỉ </span>
+                    {data.MaPhieuNghi}
+                <span> của {data.TenNguoiDangKy}</span>
+                    </div>
+                    </Menu.Item>
+            )
+        })
+        _menu.push(_tmp);
+    }
+        
+        const menuToDo = (
+            <Menu>
+               {_menu}
+            </Menu>
+        );
+        var _count = 0;
+        if(_tmp){
+            _count = 1;
+        }
         return (
             <div>
                 <Router>
@@ -109,9 +257,10 @@ export default class Contents extends React.Component {
                             <Menu.Item key="4"> <Avatar size="large" src={logo} /></Menu.Item>
           
                             <Menu.Item key="1">
-                                Trang chủ
+                            <Link to ="/home">
+                                          Trang Chủ 
+                                            </Link> 
                             </Menu.Item>
-                            <Menu.Item key="2">Phòng ban</Menu.Item>
                             <Menu.Item key="3" style={{ float: 'right' }}>
                                 <Dropdown overlay={menu} placement="bottomLeft">
                                 <a style={{}}>{this.nguoidungService.getUserCurrent().HoTen}</a>
@@ -120,9 +269,11 @@ export default class Contents extends React.Component {
 
                             <Menu.Item key="44" style={{ width:'55px',float: 'right' }}>
                                 <span style={{ marginRight: "50px" }}>
-                                    <Badge count={3}>
+                                <Dropdown overlay={menuToDo} placement="bottomCenter">
+                                    <Badge count={this.state.toDoPhieuNghi?this.state.toDoPhieuNghi.length + _count:0}>
         <Avatar >{convetHoTen(this.nguoidungService.getUserCurrent().HoTen)}</Avatar>
                                     </Badge>
+                                    </Dropdown>
                                 </span></Menu.Item>
                                 <Menu.Item> 
                                 
@@ -146,14 +297,26 @@ export default class Contents extends React.Component {
                                     defaultOpenKeys={['sub1']}
                                     style={{ height: '100%' }}
                                 >
-                                    <Menu.Item key="123">     
+                                    {
+                                        this.isThuThu() || this.isAdmin() ?
+                                        <Menu.Item key="123">     
                                         <Link to ="/home">
                                             <span>
                                                 <Icon type="pie-chart" />                                             
                                                 Dashboard
                                             </span>  
                                             </Link>                                                                                                                      
-                                    </Menu.Item>
+                                        </Menu.Item>
+                                    : 
+                                    <Menu.Item key="123">     
+                                        <Link to ="/home">
+                                            <span>
+                                                <Icon type="pie-chart" />                                             
+                                                Trang chủ
+                                            </span>  
+                                            </Link>                                                                                                                      
+                                        </Menu.Item>
+                                    }
                                     <SubMenu
                                         key="sub1"
                                         title={
@@ -163,13 +326,13 @@ export default class Contents extends React.Component {
                 </span>
                                         }
                                     >
-                                        <Menu.Item key="1">
-                                            Quản lý chung
-                                        </Menu.Item>
+                                       
                                         <Menu.Item key="2"><Link to={APP_STATE.APP_STATE.NHANSU.TREEHUMAN.url}>Sơ đồ nhân sự</Link></Menu.Item>
                                     { this.isAdmin() ? <Menu.Item key="11"><Link to={APP_STATE.APP_STATE.NHANSU.ADDHUMAN.url}>Bổ sung nhân sự</Link></Menu.Item> : null}
                                         <Menu.Item key="4"><Link to={APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.url}>Đăng ký nghỉ</Link></Menu.Item>
                                     </SubMenu>
+                                    {
+                                        this.isThuThu() || this.isAdmin()?
                                     <SubMenu
                                         key="sub2"
                                         title={
@@ -198,18 +361,26 @@ export default class Contents extends React.Component {
                                             <Link to={APP_STATE.APP_STATE.SETTING.TU.url}>Tủ</Link>
                                         </Menu.Item>
                                     </SubMenu>
-                                    <SubMenu
+                                    : null
+                                    }   
+
+                                    {
+                                        this.isThuThu() || this.isAdmin() ?
+                                        <SubMenu
                                         key="sub3"
                                         title={
                                             <span>
                                                 <Icon type="notification" />
                                                  Thiết lập chung
-                </span>
+                                       </span>
                                         }
-                                    >
+                                        >
                                         <Menu.Item key="12"><Link to={APP_STATE.APP_STATE.HOSO.TAOMOIHOSO.url}> Tạo mới hồ sơ</Link></Menu.Item>
-                                        <Menu.Item key="13">Chỉnh sửa hồ sơ</Menu.Item>                             
+                                                                  
                                     </SubMenu>
+                                    :null
+                                    }
+                                    
                                     <SubMenu
                                         key="sub4"
                                         title={
@@ -219,14 +390,20 @@ export default class Contents extends React.Component {
                 </span>
                                         }
                                     >
-                                        <Menu.Item key="16"><Link to = {APP_STATE.APP_STATE.HOSO.DANHSACHHOSO.url}>Danh sách hồ sơ</Link></Menu.Item>
+                                        <Menu.Item key="16"><Link to = {APP_STATE.APP_STATE.HOSO.DANHSACHHOSO.url}>Danh sách hồ sơ</Link></Menu.Item>                                                          
                                         <Menu.Item key="17"> <Link to = {APP_STATE.APP_STATE.TAILIEU.DANHSACHTAILIEU.url}>Danh sách tài liệu</Link></Menu.Item>
-                                        <Menu.Item key="19">Yêu cầu cần xử lý</Menu.Item>
+                                        {
+                                             this.isThuThu() || this.isAdmin()?
+                                           <Menu.Item key="34"><Link to = {APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.url}>Danh sách phiếu </Link></Menu.Item> 
+                                                : null
+                                        }
                                     </SubMenu>
-                                    <SubMenu
-                                    key = "sub5"
-                                    title={
-                                        <div>
+                                    {
+                                        this.isNhanVien()||this.isQuanLy()||this.isLanhDao()?
+                                        <SubMenu
+                                        key = "sub5"
+                                        title={
+                                            <div>
                                         <IoIosPricetags />
                                             <span>
                                             Đăng ký mượn
@@ -234,16 +411,19 @@ export default class Contents extends React.Component {
                                             </div>
                                     }
                                     >
-                                        <Menu.Item key="33"><Link to = {APP_STATE.APP_STATE.DANGKYMUON.TAOMOI.url}>Tạo phiếu đăng ký</Link></Menu.Item> 
-                                        <Menu.Item key="34"><Link to = {APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.url}>Danh sách phiếu </Link></Menu.Item> 
+                                        <Menu.Item key="33"><Link to = {APP_STATE.APP_STATE.DANGKYMUON.TAOMOI.url}>Tạo phiếu đăng ký</Link></Menu.Item>                                                
                                         </SubMenu>
+                                        :null
+                                }
                                 </Menu>
                             </Sider>                     
                             <Content style={{ padding: '0 24px', minHeight: 280 }}>
+                            <Route exact path={APP_STATE.APP_STATE.AUTHEN.url} component = {APP_STATE.APP_STATE.AUTHEN.component} />
+                            <Route exact path={APP_STATE.APP_STATE.NHANSU.DETAILPHIEUNGHI.url} component = {APP_STATE.APP_STATE.NHANSU.DETAILPHIEUNGHI.component} />
                             <Route exact path={APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.url} component = {APP_STATE.APP_STATE.NHANSU.DANGKYNGHI.component} />
                             <Route exact path={APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.url} component = {APP_STATE.APP_STATE.NHANSU.DETAILHUMAN.component} />
-                            <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.url} component = {APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.component} /> 
-                            <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.url} component = {APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.component} /> 
+                            <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.url} component = {APP_STATE.APP_STATE.DANGKYMUON.CHITIETPHIEU.component} />                                                                               
+                            <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.url} component = {APP_STATE.APP_STATE.DANGKYMUON.DANHSACH.component} />                                                    
                             <Route exact path={APP_STATE.APP_STATE.DANGKYMUON.TAOMOI.url} component = {APP_STATE.APP_STATE.DANGKYMUON.TAOMOI.component} /> 
                             <Route exact path={APP_STATE.APP_STATE.TAILIEU.DANHSACHTAILIEU.url} component = {APP_STATE.APP_STATE.TAILIEU.DANHSACHTAILIEU.component} />                           
                             <Route exact path={APP_STATE.APP_STATE.HOME.url} component = {APP_STATE.APP_STATE.HOME.component} />                               
@@ -257,7 +437,7 @@ export default class Contents extends React.Component {
                             <Route exact path={APP_STATE.APP_STATE.SETTING.DONVI.url} component={APP_STATE.APP_STATE.SETTING.DONVI.component} />
                             <Route exact path={APP_STATE.APP_STATE.SETTING.KHO.url} component={APP_STATE.APP_STATE.SETTING.KHO.component} />
                             <Route exact path={APP_STATE.APP_STATE.SETTING.VUNG.url} component={APP_STATE.APP_STATE.SETTING.VUNG.component} />
-                            <Route exact path={APP_STATE.APP_STATE.SETTING.LOAIHOSO.url} component={APP_STATE.APP_STATE.SETTING.LOAIHOSO.component} />
+                            <Route exact path={APP_STATE.APP_STATE.SETTING.LOAIHOSO.url} component={APP_STATE.APP_STATE.SETTING.LOAIHOSO.component} />         
                             </Content>
                         </Layout>
                     </Content>

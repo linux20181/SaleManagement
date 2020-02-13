@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { Form, Input, Button, Icon ,Checkbox,message,notification} from 'antd';
+import { Form, Input, Button, Icon ,Checkbox,message,notification,Row} from 'antd';
 import BlockUi from 'react-block-ui';
 import nguoidungService from '../../Service/nguoidung.service';
 import _ from 'lodash';
@@ -103,8 +103,9 @@ import ImgaeLogin from '../../Asset/Image/Login.png';
      const { getFieldDecorator } = this.props.form;
      return (     
       <BlockUi tag="div" blocking={_this.state.loaded} >
+      <Row>
          <div style={{backgroundColor:''}}>
-         <div style={{ backgroundImage:"url(" + { ImgaeLogin } + ")",textAlign:"center",marginTop:'200px',border:'solid',borderColor:"#ececec",borderRadius:'10px',height:'400px' , width:'600px',paddingTop:'50px',marginLeft:'550px'}}>
+         <div style={{ backgroundImage:"url(" + { ImgaeLogin } + ")",textAlign:"center",margin:"auto",marginTop:"10%",border:'solid',borderColor:"#ececec",borderRadius:'10px',height:'400px' , width:'600px',paddingTop:'50px'}}>
       <Form  className="login-form">
         <Form.Item>
           {getFieldDecorator('email', {
@@ -142,7 +143,8 @@ import ImgaeLogin from '../../Asset/Image/Login.png';
             Log in
           </Button>
       </div>
-            </div>        
+            </div>  
+            </Row>      
             </BlockUi>
      )
  }

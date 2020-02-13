@@ -1,7 +1,7 @@
 import React from 'react';
 import * as CONSTANT from '../../Constant/constant';
 import 'antd/dist/antd.css';
-import { Form,Row, Col,Button, Select,Tabs,notification} from 'antd';
+import { Form,Row, Col,Button,notification} from 'antd';
 import _ from 'lodash';
 import '../../Asset/Css/common.css';
 import phieumuonService from '../../Service/phieumuon.service';
@@ -77,7 +77,7 @@ export default class ChiTietPhieu extends React.Component{
         this.setState({
             dataPhieuMuon:data.data[0],
         })
-        return _this.hosotailieuService.getItems().then(function(_data){
+        return _this.hosotailieuService.getItems("").then(function(_data){
           // _this.componentDidMount();
             _this.setState({
                 dataHoSo:_.filter(_data.data,function(i){

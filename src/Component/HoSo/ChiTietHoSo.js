@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { Form, Input, Row, Col, Select, Table, Button, notification ,Icon,Dropdown ,Menu } from 'antd';
+import { Form, Input, Row, Col, Select, Table, Button, notification ,Icon,Dropdown ,Menu ,Modal} from 'antd';
 import { Tabs } from 'antd';
 import _ from 'lodash';
 import loaihosoService from '../../Service/loaihoso.service';
@@ -12,9 +12,10 @@ import hosotailieuService from '../../Service/hosotailieu.service';
 import tailieuService from '../../Service/tailieu.service';
 import logService from '../../Service/log.service';
 import tuService from '../../Service/tu.service';
+import nguoidungService from '../../Service/nguoidung.service';
 import '../../Asset/Css/common.css'
+import * as CONSTANT from '../../Constant/constant';
 import ModalTaiLieu from '../TaiLieu/modal/ModalTaiLieu'
-import FormTaiLieu from '../TaiLieu/FormTaiLieu';
 const { TabPane } = Tabs;
 const { Option } = Select;
 class ChiTietHoSo extends React.Component {
@@ -39,6 +40,7 @@ class ChiTietHoSo extends React.Component {
             blocking: true,
             record:null,
         };
+        this.nguoidungService = new nguoidungService();
         this.khoService = new khoService();
         this.tailieuService = new tailieuService();
         this.vungService = new vungService();
@@ -55,6 +57,7 @@ class ChiTietHoSo extends React.Component {
         this.cancelDoc = this.cancelDoc.bind(this);
         this.addDoc = this.addDoc.bind(this);
         this.afterModal = this.afterModal.bind(this);
+        this.removeItem = this.removeItem.bind(this);
     }
     convertDate(date) {
         var date = new Date(date);
@@ -94,9 +97,6 @@ class ChiTietHoSo extends React.Component {
     }
     saveItem(e) {
         var _this = this;
-        var SoHieuHoSos = _.map(_this.state.dataSourceHoSoTaiLieu, function (hs) {
-            return hs.SoHieuHoSo;
-        })
         var data = this.props.form.getFieldsValue();
         if (this.validateFields(data).length > 0) {
             _this.setState({
@@ -220,7 +220,11 @@ class ChiTietHoSo extends React.Component {
     }
     componentDidMount() {
         var _this = this;
-        var promise = [_this.donviService.getItems(), _this.khoService.getItems(), _this.loaihosoService.getItems(), _this.phongbanService.getItems(), _this.vungService.getItems(), _this.tuService.getItems(), _this.logService.getItems(), _this.hosotailieuService.getItems(),_this.tailieuService.getItems()]
+        if(!this.isThuThu() && !this.isAdmin()){
+            this.canNotAccess();
+            return;
+          }
+        var promise = [_this.donviService.getItems(""), _this.khoService.getItems(""), _this.loaihosoService.getItems(""), _this.phongbanService.getItems(""), _this.vungService.getItems(), _this.tuService.getItems(""), _this.logService.getItems(""), _this.hosotailieuService.getItems(""),_this.tailieuService.getItems("")]
         console.log(this.props.match.params);
         var id = this.props.match.params.id;
         this.hosotailieuService.getItem(id).then(function (data) {
@@ -259,16 +263,96 @@ class ChiTietHoSo extends React.Component {
     }
     componentWillMount(){
         var objj =this.state.dataSourceTL[0];
-        console.log("component will mout");
         if(objj){
             console.log(objj.NgayBanHanh.slice(0,10));
         }
+    }
+    canNotAccess = ()=>{
+        notification.error(
+            {
+                message: "Bạn không có quyền truy cập",
+                defaultValue: "topRight",
+                duration: 1,
+            }
+        )
+        this.props.history.push("/hoso/danhsach")
+      //  return;
+    }
+    isAdmin = ()=>{
+        var tmp = CONSTANT.GROUP.ADMIN;
+        
+      if(this.nguoidungService.getGroupUserCurrent() === tmp){
+        return true;
+      }
+      return false;
+      }
+      isThuThu = ()=>{
+        var tmp = CONSTANT.GROUP.THUTHU;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isNhanVien =()=>{
+        var tmp = CONSTANT.GROUP.NHANVIEN;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isQuanLy = ()=>{
+        var tmp = CONSTANT.GROUP.QUANLY;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isLanhDao = ()=>{
+        var tmp = CONSTANT.GROUP.LANHDAO;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+    removeItem (){
+        var _this = this ;
+        Modal.confirm({
+            title: 'Bạn có muốn xóa không ?',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                _this.hosotailieuService.deleteItem(_this.state.HoSoTaiLieus.IdHoSo)
+                    .then(function () {
+                        notification.success({
+                            message: "Xóa thành công !",
+                            defaultValue: "topRight",
+                            duration: 2,
+                        }                     
+                        );
+                        _this.props.history.push("/hoso/danhsach");
+                    })
+                    .catch(function (err) {
+                        notification.error(
+                            {
+                                message: "Có lỗi xảy ra !",
+                                defaultValue: "topRight",
+                                duration: 4,
+                            }
+                        )
+                    }).finally(function () {
+
+                    })
+            },
+            onCancel() {
+            },
+        });
     }
     render() {        
         const menu = (
             <Menu>
               <Menu.Item>
-                <a target="_blank" rel="noopener noreferrer" href="http://www.alipay.com/">
+                <a onClick={this.removeItem}>
                  Xóa hồ sơ
                 </a>
               </Menu.Item>

@@ -3,7 +3,10 @@ import 'antd/dist/antd.css';
 import { Form, Menu, Input, Button, notification, message, Modal, Table, Icon, Select, Row } from 'antd';
 import khoService from '../../Service/kho.service';
 import tuService from '../../Service/tu.service';
+import hosoService from '../../Service/hosotailieu.service';
+import nguoidungService from '../../Service/nguoidung.service';
 import ExportExel from '../Common/Export/ExportExel';
+import * as CONSTANT from '../../Constant/constant';
 import _ from 'lodash';
 const { Option } = Select;
 const { Search } = Input;
@@ -20,6 +23,8 @@ export default class Tu extends React.Component {
             dataKhos: [],
             count: 1,
         };
+        this.nguoidungService = new nguoidungService();
+        this.hosoService = new hosoService();
         this.tuService = new tuService();
         this.khoService = new khoService();
         this.handChange = this.handChange.bind(this);
@@ -29,6 +34,53 @@ export default class Tu extends React.Component {
         this.cancel = this.cancel.bind(this);
         this.isEditting = this.isEditting.bind(this);
     }
+    canNotAccess = ()=>{
+        notification.error(
+            {
+                message: "Bạn không có quyền truy cập",
+                defaultValue: "topRight",
+                duration: 1,
+            }
+        )
+        this.props.history.push("/home")
+      //  return;
+    }
+    isAdmin = ()=>{
+        var tmp = CONSTANT.GROUP.ADMIN;
+        
+      if(this.nguoidungService.getGroupUserCurrent() === tmp){
+        return true;
+      }
+      return false;
+      }
+      isThuThu = ()=>{
+        var tmp = CONSTANT.GROUP.THUTHU;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isNhanVien =()=>{
+        var tmp = CONSTANT.GROUP.NHANVIEN;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isQuanLy = ()=>{
+        var tmp = CONSTANT.GROUP.QUANLY;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isLanhDao = ()=>{
+        var tmp = CONSTANT.GROUP.LANHDAO;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
     cancel() {
         this.setState({ visible: false });
     }
@@ -102,6 +154,40 @@ export default class Tu extends React.Component {
         }
 
     }
+    searchItem = (query)=>{
+        var _query = "AND TenTu Like "+"'"+query+"%'";    
+        var _this = this;
+        _this.khoService.getItems("").
+            then(function (data) {
+                _this.setState({
+                    dataKhos: data.data,
+                })
+                return _this.tuService.getItems(_query);
+            })
+            .then(function (data) {
+                var element = {
+                    TenTu: <Input name="TenTu" type="text" onChange={_this.handChange} />,
+                    MaTu: <Input name="MaTu" type="text" onChange={_this.handChange} />,
+                    isCreate: true,
+                };
+                data.data.push(element);
+                _this.setState({
+                    dataTus: data.data,
+                })
+
+            })
+            _this.hosoService.getItems("").then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"TuId")
+                })
+            })
+    }
+    canDelete = (record)=>{
+        if((_.indexOf(this.state.dataHoSos,record.IdTu) !==-1)){   
+            return false;
+        }
+        return true;
+    }
     removeItem(record) {
         var _this = this;
         Modal.confirm({
@@ -110,6 +196,16 @@ export default class Tu extends React.Component {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
+                if(!_this.canDelete(record)){
+                    notification.error(
+                        {
+                            message: "Có lỗi xảy ra !",
+                            defaultValue: "topRight",
+                            description:"Dữ liệu đang được liên kết."
+                        }
+                    )
+                    return;
+                }
                 _this.tuService.deleteItem(record.IdTu)
                     .then(function () {
                         notification.success({
@@ -145,10 +241,13 @@ export default class Tu extends React.Component {
     }
     componentDidMount() {
         var _this = this;
+        if(!this.isThuThu() && !this.isAdmin()){
+            this.canNotAccess();
+            return;
+          }
         var query = "";
-        _this.khoService.getItems("").
+        _this.khoService.getItems(query).
             then(function (data) {
-                console.log(data)
                 _this.setState({
                     dataKhos: data.data,
                 })
@@ -165,6 +264,11 @@ export default class Tu extends React.Component {
                     dataTus: data.data,
                 })
 
+            })
+            _this.hosoService.getItems(query).then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"TuId")
+                })
             })
     }
     isEditting(record) {
@@ -193,9 +297,6 @@ export default class Tu extends React.Component {
             MaVung: null,
             visible: true,
         });
-    }
-    searchItem(value) {
-        console.log(value);
     }
     render() {
         var _this = this;

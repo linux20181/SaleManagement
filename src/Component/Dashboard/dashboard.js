@@ -3,19 +3,21 @@ import {Row, Col, Table} from 'antd';
 import {FaChartBar} from 'react-icons/fa';
 import {FaStaylinked} from 'react-icons/fa';
 import {FaHockeyPuck} from 'react-icons/fa';
+import * as CONSTANT from '../../Constant/constant';
 import hosotailieuService from '../../Service/hosotailieu.service';
 import tailieuService from '../../Service/tailieu.service';
 import phieumuonService from '../../Service/phieumuon.service';
+import nguoidungService from '../../Service/nguoidung.service';
 import Status from '../../Component/Common/Status/Status';
 import _ from 'lodash';
  function getEmailCurrUser(){
     var UserCurr = JSON.parse(localStorage.getItem('User'));
     return UserCurr.Email;
 }
-function getCurrUser(){
-    var UserCurr = JSON.parse(localStorage.getItem('User'));
-    return UserCurr;
-}
+// function getCurrUser(){
+//     var UserCurr = JSON.parse(localStorage.getItem('User'));
+//     return UserCurr;
+// }
 
 export default class Home extends React.Component{
     constructor(props){
@@ -29,11 +31,48 @@ export default class Home extends React.Component{
         }
         this.hosotailieuService = new hosotailieuService();
         this.tailieuService = new tailieuService();
+        this.nguoidungService = new nguoidungService();
         this.phieumuonService = new phieumuonService();
     }
+    isAdmin = ()=>{
+        var tmp = CONSTANT.GROUP.ADMIN;
+        
+      if(this.nguoidungService.getGroupUserCurrent() === tmp){
+        return true;
+      }
+      return false;
+      }
+      isThuThu = ()=>{
+        var tmp = CONSTANT.GROUP.THUTHU;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isNhanVien =()=>{
+        var tmp = CONSTANT.GROUP.NHANVIEN;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isQuanLy = ()=>{
+        var tmp = CONSTANT.GROUP.QUANLY;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isLanhDao = ()=>{
+        var tmp = CONSTANT.GROUP.LANHDAO;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
     componentDidMount(){
         var _this = this ;
-        var promises = [this.hosotailieuService.getItems(),this.tailieuService.getItems(),this.phieumuonService.getItems()]
+        var promises = [this.hosotailieuService.getItems(""),this.tailieuService.getItems(""),this.phieumuonService.getItems("")]
         Promise.all(promises).then(function(data){
             _this.setState({
                 allHoSo : data[0].data.length,
@@ -90,6 +129,10 @@ export default class Home extends React.Component{
     
         return(
             <div style={{backgroundColor:"#f0f3f8", height:"1000px"}}>
+                {
+                    this.isAdmin() || this.isThuThu() || this.isLanhDao() ?
+                    <div>
+                    <Row>
                 <div>
                 <Row style = {{paddingTop:"30px" , paddingLeft:"30px"}}>
                 <Col span = {8}>
@@ -104,7 +147,7 @@ export default class Home extends React.Component{
                     <h2>{this.state.allHoSo}</h2>
                     </Col>
                     </div>
-                      </Col>
+                </Col>
                 <Col span = {8}> 
                 <div style={{backgroundColor:"white", height:"200px" , width:"350px" , borderWidth:"1px" , borderRadius:"8px"}}>
                 <div style={{backgroundColor:"white", height:"200px" , width:"430px" , borderWidth:"1px" , borderRadius:"8px"}}>                 
@@ -166,9 +209,18 @@ export default class Home extends React.Component{
                 </Col>
                 </Row>
                 </div>
-                <div style = {{paddingTop:"30px" , paddingLeft:"30px"}}>
+                </Row>
+                </div>
+                : null
+                }
+                
+                {
+                    this.isNhanVien() || this.isQuanLy()|| this.isLanhDao() ?
+                    <div style = {{paddingTop:"30px" , paddingLeft:"30px"}}>
                     <Table bordered title={() => <h3 style = {{color : "#52b3eb" ,textTransform : "uppercase"}}> Phiếu đăng ký của tôi </h3>}  columns={columnsPM} dataSource = {this.state.PhieuMuons} />
                     </div>
+                : null
+                }
             </div>
         )
     }

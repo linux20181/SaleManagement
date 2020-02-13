@@ -9,6 +9,9 @@ export default class ExportExel extends React.Component{
     constructor(props){
         super(props);
     }
+    componentDidMount(){
+       console.log(this.props.dataSet);
+    }
     render(){
         var propertyHai = this.props.dataSet.map((data)=>{         
             return Object.keys(data);

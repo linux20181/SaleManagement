@@ -2,7 +2,12 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import { Form, Menu,Input, Button, notification, message, Modal, Table, Icon, Row } from 'antd';
 import donviService from '../../Service/donvi.service';
+import phongbanService from '../../Service/phongban.service';
+import hosoService from '../../Service/hosotailieu.service';
+import tailieuService from '../../Service/tailieu.service';
+import nguoidungService from '../../Service/nguoidung.service';
 import ExportExel from '../Common/Export/ExportExel';
+import * as CONSTANT from '../../Constant/constant';
 import _ from 'lodash';
 const { Search } = Input;
 
@@ -15,8 +20,15 @@ export default class DonVi extends React.Component {
             MaDonVi: null,
             visible: false,
             dataDonVis: [],
+            dataPhongBans:[],
+            dataHoSos:[],
+            dataTLs:[],
             count: 1,
         };
+        this.nguoidungService = new nguoidungService();
+        this.hosoService = new hosoService();
+        this.tailieuService = new tailieuService();
+        this.phongbanService = new phongbanService();
         this.donviService = new donviService();
         this.handChange = this.handChange.bind(this);
         this.removeItem = this.removeItem.bind(this);
@@ -25,6 +37,53 @@ export default class DonVi extends React.Component {
         this.cancel = this.cancel.bind(this);
         this.isEditting = this.isEditting.bind(this);
     }
+    canNotAccess = ()=>{
+        notification.error(
+            {
+                message: "Bạn không có quyền truy cập",
+                defaultValue: "topRight",
+                duration: 1,
+            }
+        )
+        this.props.history.push("/home")
+      //  return;
+    }
+    isAdmin = ()=>{
+        var tmp = CONSTANT.GROUP.ADMIN;
+        
+      if(this.nguoidungService.getGroupUserCurrent() === tmp){
+        return true;
+      }
+      return false;
+      }
+      isThuThu = ()=>{
+        var tmp = CONSTANT.GROUP.THUTHU;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isNhanVien =()=>{
+        var tmp = CONSTANT.GROUP.NHANVIEN;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isQuanLy = ()=>{
+        var tmp = CONSTANT.GROUP.QUANLY;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isLanhDao = ()=>{
+        var tmp = CONSTANT.GROUP.LANHDAO;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
     cancel() {
         this.setState({ visible: false });
     }
@@ -95,6 +154,12 @@ export default class DonVi extends React.Component {
         }
 
     }
+    canDelete = (record)=>{
+        if((_.indexOf(this.state.dataPhongBans,record.IdDonVi) !==-1)||(_.indexOf(this.state.dataHoSos,record.IdDonVi) !==-1)||(_.indexOf(this.state.dataTLs,record.IdDonVi) !==-1)){   
+            return false;
+        }
+        return true;
+    }
     removeItem(record) {
         var _this = this;
         Modal.confirm({
@@ -103,6 +168,16 @@ export default class DonVi extends React.Component {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
+                if(!_this.canDelete(record)){
+                    notification.error(
+                        {
+                            message: "Có lỗi xảy ra !",
+                            defaultValue: "topRight",
+                            description:"Dữ liệu đang được liên kết."
+                        }
+                    )
+                    return;
+                }
                 _this.donviService.deleteItem(record.IdDonVi)
                     .then(function () {
                         notification.success({
@@ -138,6 +213,10 @@ export default class DonVi extends React.Component {
     }
     componentDidMount() {
         var _this = this;
+        if(!this.isThuThu() && !this.isAdmin()){
+            this.canNotAccess();
+            return;
+          }
         var query = "";
         _this.donviService.getItems(query)
             .then(function (data) {
@@ -151,6 +230,22 @@ export default class DonVi extends React.Component {
                     dataDonVis: data.data,
                 })
             })
+        _this.phongbanService.getItems(query)
+            .then(function(data){
+                _this.setState({
+                    dataPhongBans:_.map(data.data,"IdDonVi"),
+                })
+            }) 
+            _this.hosoService.getItems("").then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"DonViSoHuuId")
+                })
+            })
+            _this.tailieuService.getItems("").then(function(data){
+                _this.setState({
+                    dataTLs:_.map(data.data,"DonViBanHanhId")
+                })
+            })       
     }
     isEditting(record) {
         var number = this.state.count;
@@ -178,8 +273,20 @@ export default class DonVi extends React.Component {
             visible: true,
         });
     }
-    searchItem(value){
-        console.log(value);
+    searchItem(query){
+        var _query = "Where TenDonVi Like "+"'"+query+"%'";
+        var _this = this ;
+        _this.donviService.getItems(_query).then(function(data){
+            var element = {
+                TenDonVi: <Input name="TenDonVi" type="text" onChange={_this.handChange} />,
+                MaDonVi: <Input name="MaDonVi" type="text" onChange={_this.handChange} />,
+                isCreate: true,
+            };
+            data.data.push(element);
+            _this.setState({
+                dataDonVis: data.data,
+            })
+        })
     }
     render() {
         var _this = this;

@@ -11,13 +11,10 @@ import khoService from '../../Service/kho.service';
 import phongbanService from '../../Service/phongban.service';
 import hosotailieuService from '../../Service/hosotailieu.service';
 import tuService from '../../Service/tu.service';
+import * as CONSTANT from '../../Constant/constant';
 import logService from '../../Service/log.service';
 const { TabPane } = Tabs;
 const { Option } = Select;
-function convertTime(date) {
-  var stringDate = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.toLocaleTimeString().substring(0, date.toLocaleTimeString().length - 2);
-  return stringDate
-}
 class TaoMoiHoSo extends React.Component {
   constructor(props) {
     super(props);
@@ -81,12 +78,62 @@ class TaoMoiHoSo extends React.Component {
       if(!data.KhoId){
         validates.push("Kho là trường bắt buộc");
       }
+      if(!data.TuId){
+        validates.push("Tủ là trường bắt buộc");
+      }
       if(!data.SoHieuHoSo){
         validates.push("Số hiệu hồ sơ là trường bắt buộc");
       }
       return validates;
     }
       return null;
+  }
+  canNotAccess = ()=>{
+    notification.error(
+        {
+            message: "Bạn không có quyền truy cập",
+            defaultValue: "topRight",
+            duration: 1,
+        }
+    )
+    this.props.history.push("/home")
+  //  return;
+}
+isAdmin = ()=>{
+    var tmp = CONSTANT.GROUP.ADMIN;
+    
+  if(this.nguoidungService.getGroupUserCurrent() === tmp){
+    return true;
+  }
+  return false;
+  }
+  isThuThu = ()=>{
+    var tmp = CONSTANT.GROUP.THUTHU;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
+  }
+  isNhanVien =()=>{
+    var tmp = CONSTANT.GROUP.NHANVIEN;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
+  }
+  isQuanLy = ()=>{
+    var tmp = CONSTANT.GROUP.QUANLY;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
+  }
+  isLanhDao = ()=>{
+    var tmp = CONSTANT.GROUP.LANHDAO;
+    if(this.nguoidungService.getGroupUserCurrent() === tmp){
+      return true;
+    }
+    return false;
   }
   saveItem() {
     var _this =this;
@@ -137,7 +184,7 @@ class TaoMoiHoSo extends React.Component {
   onChangeVung(event) {
     console.log(event);
     var _this = this
-    this.khoService.getItems().then(function (data) {
+    this.khoService.getItems("").then(function (data) {
       _this.setState({
         dataSourceKho: _.filter(data.data, function (d) {
           return d.IdVung === event;
@@ -148,7 +195,7 @@ class TaoMoiHoSo extends React.Component {
   onChangeKho(event) {
     console.log(event);
     var _this = this
-    this.tuService.getItems().then(function (data) {
+    this.tuService.getItems("").then(function (data) {
       _this.setState({
         dataSourceTu: _.filter(data.data, function (d) {
           return d.IdKho === event;
@@ -158,7 +205,7 @@ class TaoMoiHoSo extends React.Component {
   }
   onChangeDonVi(event) {
     var _this = this
-    this.phongbanService.getItems().then(function (data) {
+    this.phongbanService.getItems("").then(function (data) {
       _this.setState({
         dataSourcePhongBan: _.filter(data.data, function (d) {
           return d.IdDonVi === event;
@@ -169,8 +216,11 @@ class TaoMoiHoSo extends React.Component {
   componentDidMount() {
     console.log(this.props.location);
     var _this = this;
-
-    var promises = [_this.loaihosoService.getItems(), _this.donviService.getItems(), _this.vungService.getItems(),_this.hosotailieuService.getItems()];
+    if(!this.isThuThu() &&  !this.isAdmin()){
+      this.canNotAccess();
+      return;
+    }
+    var promises = [_this.loaihosoService.getItems(""), _this.donviService.getItems(""), _this.vungService.getItems(""),_this.hosotailieuService.getItems("")];
     Promise.all(promises).then(function (data) {
       _this.setState({
         dataSourceLoaiHoSo: data[0].data,
@@ -219,7 +269,6 @@ class TaoMoiHoSo extends React.Component {
         <Option key={pb.IdPhongBan} value={pb.IdPhongBan}>{pb.TenPhongBan}</Option>
       )
     })
-    var optionDangVanBan = ["Bản cứng", "Bản mềm"];
     return (
       <div>
         <Tabs>

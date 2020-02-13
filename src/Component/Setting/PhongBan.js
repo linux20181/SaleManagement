@@ -3,7 +3,11 @@ import 'antd/dist/antd.css';
 import { Form, Menu, Input, Button, notification, message, Modal, Table, Icon, Select, Row } from 'antd';
 import phongbanService from '../../Service/phongban.service';
 import donviService from '../../Service/donvi.service';
+import hosoService from '../../Service/hosotailieu.service';
+import tailieuService from '../../Service/tailieu.service';
+import nguoidungService from '../../Service/nguoidung.service';
 import ExportExel from '../Common/Export/ExportExel';
+import * as CONSTANT from '../../Constant/constant';
 import _ from 'lodash';
 const { Option } = Select;
 const { Search } = Input;
@@ -18,8 +22,13 @@ export default class PhongBan extends React.Component {
             visible: false,
             dataPhongBans: [],
             dataDonVis: [],
+            dataHoSos:[],
+            dataTLs:[],
             count: 1,
         };
+        this.nguoidungService = new nguoidungService();
+        this.hosoService = new hosoService();
+        this.tailieuService = new tailieuService();
         this.phongbanService = new phongbanService();
         this.donviService = new donviService();
         this.handChange = this.handChange.bind(this);
@@ -29,6 +38,53 @@ export default class PhongBan extends React.Component {
         this.cancel = this.cancel.bind(this);
         this.isEditting = this.isEditting.bind(this);
     }
+    canNotAccess = ()=>{
+        notification.error(
+            {
+                message: "Bạn không có quyền truy cập",
+                defaultValue: "topRight",
+                duration: 1,
+            }
+        )
+        this.props.history.push("/home")
+      //  return;
+    }
+    isAdmin = ()=>{
+        var tmp = CONSTANT.GROUP.ADMIN;
+        
+      if(this.nguoidungService.getGroupUserCurrent() === tmp){
+        return true;
+      }
+      return false;
+      }
+      isThuThu = ()=>{
+        var tmp = CONSTANT.GROUP.THUTHU;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isNhanVien =()=>{
+        var tmp = CONSTANT.GROUP.NHANVIEN;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isQuanLy = ()=>{
+        var tmp = CONSTANT.GROUP.QUANLY;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isLanhDao = ()=>{
+        var tmp = CONSTANT.GROUP.LANHDAO;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
     cancel() {
         this.setState({ visible: false });
     }
@@ -108,6 +164,15 @@ export default class PhongBan extends React.Component {
         }
 
     }
+
+    canDelete = (record)=>{
+        //dataTLs
+        if((_.indexOf(this.state.dataHoSos,record.IdPhongBan) !==-1)||(_.indexOf(this.state.dataTLs,record.IdPhongBan) !==-1)){   
+            return false;
+        }
+        return true;
+    }
+
     removeItem(record) {
         var _this = this;
         Modal.confirm({
@@ -116,6 +181,16 @@ export default class PhongBan extends React.Component {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
+                if(!_this.canDelete(record)){
+                    notification.error(
+                        {
+                            message: "Có lỗi xảy ra !",
+                            defaultValue: "topRight",
+                            description:"Dữ liệu đang được liên kết."
+                        }
+                    )
+                    return;
+                }
                 _this.phongbanService.deleteItem(record.IdPhongBan)
                     .then(function () {
                         notification.success({
@@ -149,10 +224,49 @@ export default class PhongBan extends React.Component {
             [name]: value,
         })
     }
-    componentDidMount() {
+    searchItem = (query)=>{
+        var _query = "AND TenPhongBan Like "+"'"+query+"%'";    
         var _this = this;
         var query = "";
-        _this.donviService.getItems("").
+        _this.donviService.getItems(query).
+            then(function (data) {
+                console.log(data)
+                _this.setState({
+                    dataDonVis: data.data,
+                })
+                return _this.phongbanService.getItems(_query);
+            })
+            .then(function (data) {
+                var element = {
+                    TenPhongBan: <Input name="TenPhongBan" type="text" onChange={_this.handChange} />,
+                    MaPhongBan: <Input name="MaPhongBan" type="text" onChange={_this.handChange} />,
+                    isCreate: true,
+                };
+                data.data.push(element);
+                _this.setState({
+                    dataPhongBans: data.data,
+                })
+
+            })
+            _this.hosoService.getItems(query).then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"PhongBanSoHuuId")
+                })
+            })
+            _this.tailieuService.getItems(query).then(function(data){
+                _this.setState({
+                    dataTLs:_.map(data.data,"PhongBanPheDuyetId")
+                })
+            })
+    }   
+    componentDidMount() {
+        var _this = this;
+        if(!this.isThuThu() && !this.isAdmin()){
+            this.canNotAccess();
+            return;
+          }
+        var query = "";
+        _this.donviService.getItems(query).
             then(function (data) {
                 console.log(data)
                 _this.setState({
@@ -172,6 +286,17 @@ export default class PhongBan extends React.Component {
                 })
 
             })
+            _this.hosoService.getItems(query).then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"PhongBanSoHuuId")
+                })
+            })
+            _this.tailieuService.getItems(query).then(function(data){
+                _this.setState({
+                    dataTLs:_.map(data.data,"PhongBanPheDuyetId")
+                })
+            })
+            
     }
     isEditting(record) {
         var _this = this;

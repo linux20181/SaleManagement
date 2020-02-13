@@ -1,10 +1,10 @@
 import React from 'react';
-import { Form, Input, Row, Col,DatePicker ,Button, Select,notification,Tabs,message} from 'antd';
+import { Form, Input, Row, Col,DatePicker ,Button, Select,notification,Tabs} from 'antd';
+import { IoMdSend } from "react-icons/io";
 import nguoidungService from '../../Service/nguoidung.service';
 import phieunghiService from '../../Service/phieunghi.service';
+import Status from '../Common/Status/Status';
 import '../../Asset/Css/common.css';
-import _  from 'lodash'; 
-import { IoMdSend } from "react-icons/io";
 const { Option } = Select;
 const { TabPane } = Tabs;
 const {TextArea} = Input;
@@ -16,14 +16,22 @@ function randomMaPhieu(currUser){
     }
     return null;
 }
-class DangKyNghi extends React.Component {
+class DetailPhieu extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-          allDocOfCurrUser: [],
+            phieunghi:null,
         }
         this.nguoidungService = new nguoidungService();
         this.phieunghiService = new phieunghiService();
+        this.acceptDocument = this.acceptDocument.bind(this);
+    }
+    isPheDuyet = ()=>{
+            if(this.state.phieunghi){
+                return this.nguoidungService.getUserCurrent().ID === this.state.phieunghi.NguoiPheDuyet;
+            }
+        
+        
     }
     convertTime(date) {
         var stringDate = date.getFullYear() + "-" + JSON.stringify(parseInt(date.getMonth()) + 1) + "-" + date.getDate() + " " + date.toLocaleTimeString().substring(0, date.toLocaleTimeString().length - 2);
@@ -33,75 +41,63 @@ class DangKyNghi extends React.Component {
         var stringDate = date.getFullYear() + "/" + JSON.stringify(parseInt(date.getMonth()) + 1) + "/" + (date.getDate()+1);
         return stringDate
       }
-    componentDidMount(){
-      var _this = this;
-      _this.phieunghiService.getItems().then(function(data){
-        _this.setState({
-          allDocOfCurrUser : data.data,
-        })
-       });
-       
-      }  
-
       sendRequest = ()=>{
-        if(!this.canAddDoc()){
-          notification.error({
-            defaultValue: "topRight",
-            message: "Lỗi",
-            description:"Bạn đang có phiếu chờ phê duyệt !",
-            duration: 2,
-        })
-        return;
-        };
+        var _this =this;
         var data = this.props.form.getFieldsValue();
         data.MaPhieuNghi = randomMaPhieu(this.nguoidungService.getUserCurrent());
         data.TenNguoiDangKy = this.nguoidungService.getUserCurrent().HoTen;
         data.IdNguoiDangKy = this.nguoidungService.getUserCurrent().ID;
         data.ThoiGianNghi = this.convertDateViewPhieu(new Date());
+        data.ThoiGianKetThuc = this.convertTime(data.ThoiGianKetThuc._d);
         data.NguoiPheDuyet = this.nguoidungService.getUserCurrent().QuanLy;
         data.TrangThaiPhieuNghi = "Chờ xử lý";
-        if(!data.ThoiGianKetThuc){
-          var messages = "Thời gian kết thúc là trường bắt buộc !";
-          message.warning(messages);
-          return;
-        }
-        data.ThoiGianKetThuc = this.convertTime(data.ThoiGianKetThuc._d);
         this.phieunghiService.saveItem(data).then(function(){
           notification.success({
             defaultValue: "topRight",
             message: "Đã gửi đăng ký.",
-            duration: 2,
+            duration: 4,
         }
         ); 
-          window.location.reload();
       })
+      
       }
 
-      canAddDoc = ()=>{
-        var _this = this;
-        var tmp = [];
-        if(this.state.allDocOfCurrUser){
-         tmp = _.filter(this.state.allDocOfCurrUser,function(i){
-            return i.IdNguoiDangKy === _this.nguoidungService.getUserCurrent().ID && i.TrangThaiPhieuNghi ==="Chờ xử lý";
+      componentDidMount(){
+          var _this = this;
+          this.phieunghiService.getItem(_this.props.match.params.id).then(function(data){
+            _this.setState({
+                phieunghi:data.data[0],
+            })
           })
-          if(tmp.length > 1){
-            return false;
-          }else{
-            return true;
-          }
-        }
-        return true;
       }
-
+      acceptDocument(){
+        var _this = this;
+        var data = null;  
+          if(_this.state.phieunghi){
+              data = _this.state.phieunghi;
+          }
+        data.TrangThaiPhieuNghi = "Đã phê duyệt";
+        data.ThoiGianNghi = this.convertTime(new Date(data.ThoiGianNghi));
+        data.ThoiGianKetThuc = this.convertTime(new Date(data.ThoiGianKetThuc));
+        _this.phieunghiService.saveItem(data).then(function(){
+            notification.success({
+                defaultValue: "topRight",
+                message: "Đã phê duyệt.",
+                duration: 2,
+            }
+            );
+        _this.componentDidMount();   
+        })
+    }
     render(){
         const { getFieldDecorator } = this.props.form;
         var today = new Date();
-        console.log(today);
         return(
             <div>
-                <div>
-                <h1 className = "form-head" style={{ textTransform:"uppercase", color: "#1890ff" }}>Đăng ký nghỉ</h1>
+                <div style={{marginBottom:"7px"}}>
+                <h1 className = "form-head" style={{ textTransform:"uppercase", color: "#1890ff" }}>Chi tiết phiếu nghỉ</h1><span><Status status ={ this.state.phieunghi ? this.state.phieunghi.TrangThaiPhieuNghi : null}/></span>
                 </div>
+                
                 <div>
                 <Form>
                             <div>
@@ -115,7 +111,7 @@ class DangKyNghi extends React.Component {
                               Mã phiếu nghỉ:
               </Col>
                             <span>
-                             {randomMaPhieu(this.nguoidungService.getUserCurrent())}
+                             {this.state.phieunghi?this.state.phieunghi.MaPhieuNghi:null}
                             </span>
                           </Form.Item>
                         </Col>
@@ -159,7 +155,7 @@ class DangKyNghi extends React.Component {
                               Tên người đăng ký:
               </Col>
                             <span>
-                             {this.nguoidungService.getUserCurrent().HoTen}
+                             {this.state.phieunghi ? this.state.phieunghi.TenNguoiDangKy :null}
                             </span>
                           </Form.Item>
                         </Col>
@@ -187,11 +183,12 @@ class DangKyNghi extends React.Component {
                               Thời gian kết thúc:
               </Col>
                             <span>
-                              {getFieldDecorator('ThoiGianKetThuc', {
+                              {/* {getFieldDecorator('ThoiGianKetThuc', {
                                 rules: [{ required: true, message: 'Thời gian kết thúc là trường bắt buộc !' }],
                               })(
                                 <DatePicker format = "YYYY/MM/DD"/>,
-                              )}
+                              )} */}
+                              {this.state.phieunghi? this.convertDateViewPhieu(new Date(this.state.phieunghi.ThoiGianKetThuc)):null}
                             </span>
                           </Form.Item>
                         </Col>
@@ -203,13 +200,14 @@ class DangKyNghi extends React.Component {
                               Lý do:
               </Col>
                             <span>
-                              {getFieldDecorator('LyDo', {
+                              {/* {getFieldDecorator('MucDichMuon', {
                                 rules: [{ required: false }],
                               })(
                                 <TextArea
                                   style={{ width: '400px' }}
                                 />,
-                              )}
+                              )} */}
+                              {this.state.phieunghi ? this.state.phieunghi.LyDo :null}
                             </span>
                           </Form.Item>
                         </Col>
@@ -219,16 +217,26 @@ class DangKyNghi extends React.Component {
                             </div>  
                                                 
                         </Form>
-                        <div style = {{marginTop:"10px"}}>
-                        <Button  size="default" onClick={this.sendRequest} >
+                        {
+                            this.state.phieunghi ? 
+                            <div>
+                            { this.isPheDuyet() && this.state.phieunghi.TrangThaiPhieuNghi !== "Đã phê duyệt" ?
+                                <div style = {{marginTop:"10px"}}>
+                        <Button  size="default" onClick={this.acceptDocument} >
                             <div style={{color:"#1890ff"}}>
-                          <IoMdSend  size="15"/> <span>Đăng ký </span>
+                          <IoMdSend  size="15"/> <span>Phê duyệt</span>
                           </div>
                         </Button>
                         </div>
+                        :
+                        null
+                        }
+                        </div>
+                        :null
+                            }
                 </div>
             </div>
         )
     }
 }
-export default Form.create({})(DangKyNghi)
+export default Form.create({})(DetailPhieu);

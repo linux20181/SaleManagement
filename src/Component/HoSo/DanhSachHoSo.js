@@ -1,15 +1,17 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { Table,Dropdown,Icon,Menu,notification} from 'antd';
+import { Table,Dropdown,Icon,Menu,notification,Row,Col,Input} from 'antd';
 import { IoIosFlag } from "react-icons/io";
 import _ from 'lodash';
 import hosotailieuService from '../../Service/hosotailieu.service';
+import nguoidungService from '../../Service/nguoidung.service';
 import vungService from '../../Service/vung.service';
 import khoService from '../../Service/kho.service';
 import tuService from '../../Service/tu.service';
 import phieumuonService from '../../Service/phieumuon.service';
+const { Search } = Input;
 function convertTime(date) {
-    var stringDate = date.getFullYear() + "-" + JSON.stringify(parseInt(date.getMonth()) + 1) + "-" + date.getDate() + " " + date.toLocaleTimeString().substring(0, date.toLocaleTimeString().length - 2);
+    var stringDate = date.getFullYear() + "-" + JSON.stringify(parseInt(date.getMonth()) + 1) + "-" + date.getDate() ;
     return stringDate
   }
   function convertTimePay(date) {
@@ -74,6 +76,7 @@ export default class DanhSachHoSo extends React.Component {
               HoSo: null,
               recordBorrow:null
           }
+          this.nguoidungService = new nguoidungService();
           this.phieumuonService = new phieumuonService();
           this.hosotailieuService = new hosotailieuService();
           this.vungService = new vungService();
@@ -83,9 +86,32 @@ export default class DanhSachHoSo extends React.Component {
           this.handleVisibleChange = this.handleVisibleChange.bind(this);
           this.sendBorrow = this.sendBorrow.bind(this);
       }
+
+      searchItem = (query)=>{
+        var _query = "Where TenHoSo Like "+"'"+query+"%'";    
+        var _this = this;
+        var promise = [_this.vungService.getItems(""),_this.khoService.getItems(""),_this.tuService.getItems("")];
+          Promise.all(promise).then(function(data){
+              return data;
+          }).then(function(data){
+              var self = data;
+              _this.setState({
+                  dataVungs:data[0].data,
+                  dataKhos:data[1].data,
+                  dataTus:data[2].data,
+              })
+              _this.hosotailieuService.getItems(_query).then(function(data){
+                  console.log(data.data);
+                  _this.setState({
+                      dataSource : data.data,
+                  })
+              })
+          })
+    }
+
       componentDidMount(){
           var _this = this;
-          var promise = [_this.vungService.getItems(),_this.khoService.getItems(),_this.tuService.getItems()];
+          var promise = [_this.vungService.getItems(""),_this.khoService.getItems(""),_this.tuService.getItems("")];
             Promise.all(promise).then(function(data){
                 return data;
             }).then(function(data){
@@ -95,7 +121,7 @@ export default class DanhSachHoSo extends React.Component {
                     dataKhos:data[1].data,
                     dataTus:data[2].data,
                 })
-                _this.hosotailieuService.getItems().then(function(data){
+                _this.hosotailieuService.getItems("").then(function(data){
                     console.log(data.data);
                     _this.setState({
                         dataSource : data.data,
@@ -107,8 +133,8 @@ export default class DanhSachHoSo extends React.Component {
         this.props.history.push("/hosotailieu/" + record.id);
       }
       sendBorrow(){
-         // var _this = this ; 
-        
+         var _this = this ; 
+            var CloneHoSo = this.state.HoSo;
          if(this.state.HoSo.TinhTrangMuonTra !=="Lưu kho"){
             notification.error(
                 {
@@ -123,9 +149,14 @@ export default class DanhSachHoSo extends React.Component {
             notification.success({
                 defaultValue: "topRight",
                 message: "Đăng ký mượn thành công !",
+                description :" Thông tin chi tiết xin vui lòng xem trong Email .",
                 duration: 4,
             }
-            );  
+            ); 
+            CloneHoSo.TinhTrangMuonTra = "Đã cho mượn";
+            _this.hosotailieuService.saveItem(CloneHoSo).then(function(){
+
+            })
           })
       }
       handleVisibleChange(record){
@@ -138,11 +169,12 @@ export default class DanhSachHoSo extends React.Component {
           data={
               MaPhieuMuon: "PM"+"-" + record.IdHoSo +  new Date().toLocaleTimeString().substring(0, new Date().toLocaleTimeString().length - 2),
               TenPhieuMuon:"Phiếu mượn"+"-"+record.IdHoSo + new Date().toLocaleTimeString().substring(0, new Date().toLocaleTimeString().length - 2),
-              Author:record.Author,
+              Author:_this.nguoidungService.getUserCurrent().Email,
               ThoiGianMuon: convertTime(new Date()),
               ThoiGianTra: convertTimePay(new Date()),
               TenHoSoMuonId : record.IdHoSo,
               TrangThai:'Chờ xử lý',
+              TenHoSoDaChoMuon: record.TenHoSo
           }
            data.MaPhieuMuon = data.MaPhieuMuon.replace(":","");
            data.TenPhieuMuon = data.TenPhieuMuon.replace(":","");
@@ -292,9 +324,27 @@ export default class DanhSachHoSo extends React.Component {
           ]
           return(
               <div>
-                  <h1 className = "form-head" style={{ textTransform:"uppercase", color: "#1890ff" }}> Danh sách hồ sơ 
-                   
-                    </h1>
+                   <Row style={{}}>
+                     <div >
+                     <Col span={12}>
+                  <h1  style={{ textTransform:"uppercase", color: "#1890ff" }}> Danh hồ sơ</h1> 
+                 </Col>
+                 <Col span = {12}>
+                  <div style={{ textAlign: "right" }}>
+                  <Search
+                        placeholder="Tìm kiếm ..."
+                        onSearch={value => _this.searchItem(value)}
+                        style={{ width: 400 }}
+                    />
+                    <span>
+                    <Dropdown overlay={null} trigger={['click']}>
+                     <a style = {{color : "#534e4e"}}><Icon style={{ fontSize: '25px' }} type="more" /></a>
+                     </Dropdown></span>
+                </div>
+                </Col>
+                </div>
+                  </Row>
+                  <div style={{marginBottom:"20px"}} className = "form-head"> </div>
                   <Table bordered rowKey="" columns = {columns} dataSource = {this.state.dataSource} pagination={{ pageSize: 25 }} scroll={{ x: 1300 , y:1300 }}/>
                   </div>
           )

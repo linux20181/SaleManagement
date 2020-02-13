@@ -1,21 +1,18 @@
 import React from 'react';
-import {Row, Col, Table} from 'antd';
-import {FaChartBar} from 'react-icons/fa';
-import {FaStaylinked} from 'react-icons/fa';
-import {FaHockeyPuck} from 'react-icons/fa';
+import {Table} from 'antd';
 import hosotailieuService from '../../Service/hosotailieu.service';
 import tailieuService from '../../Service/tailieu.service';
 import phieumuonService from '../../Service/phieumuon.service';
 import Status from '../../Component/Common/Status/Status';
 import _ from 'lodash';
- function getEmailCurrUser(){
-    var UserCurr = JSON.parse(localStorage.getItem('User'));
-    return UserCurr.Email;
-}
-function getCurrUser(){
-    var UserCurr = JSON.parse(localStorage.getItem('User'));
-    return UserCurr;
-}
+//  function getEmailCurrUser(){
+//     var UserCurr = JSON.parse(localStorage.getItem('User'));
+//     return UserCurr.Email;
+// }
+// function getCurrUser(){
+//     var UserCurr = JSON.parse(localStorage.getItem('User'));
+//     return UserCurr;
+// }
 export default class DanhSachPhieu extends React.Component{
     constructor(props){
         super(props);
@@ -41,9 +38,8 @@ export default class DanhSachPhieu extends React.Component{
         return stringDate
       }
     componentDidMount(){
-        var _this = this ;
-        
-        var promises = [this.hosotailieuService.getItems(),this.tailieuService.getItems(),this.phieumuonService.getItems()]
+        var _this = this ;      
+        var promises = [this.hosotailieuService.getItems(""),this.tailieuService.getItems(""),this.phieumuonService.getItems("")]
         Promise.all(promises).then(function(data){
             _this.setState({
                 allHoSo : data[0].data.length,
@@ -71,8 +67,7 @@ export default class DanhSachPhieu extends React.Component{
                     }
                 }),               
             })
-        })
-        
+        })       
     }
     render(){
         var _this = this;

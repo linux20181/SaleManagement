@@ -17,7 +17,12 @@ import DanhSachPhieu from './Component/MuonTra/DanhSachPhieu';
 import ChiTietPhieu from './Component/MuonTra/ChiTietPhieu';
 import DetailHuman from './Component/Human/DetailHuman';
 import DangKyNghi from './Component/Human/DangKyNghi';
+<<<<<<< HEAD
 import ToDoList from './Component/Common/ToDoList/ToDoList';
+=======
+import DetailPhieu from './Component/Human/DetailPhieu';
+import ChangePass from './Authentication/ChangePass';
+>>>>>>> 56f05bb187458f6bcb5f248c8ad5d685d88391e9
 export const APP_STATE = {
     HOME :{
         url:"/home",
@@ -99,15 +104,25 @@ export const APP_STATE = {
         DANGKYNGHI:{
             url:"/nhansu/dangkynghi",
             component:DangKyNghi,
+        },
+        DETAILPHIEUNGHI:{
+            url:"/nhansu/phieunghi/:id",
+            component:DetailPhieu,
         }
     },
     LOGIN : {
         url: '/login',
         component : Login,
     },
+<<<<<<< HEAD
     TODOLIST : {
         url:'/todolist',
         component : ToDoList,
+=======
+    AUTHEN :{
+        url:'/nguoidung/doimatkhau',
+        component : ChangePass,
+>>>>>>> 56f05bb187458f6bcb5f248c8ad5d685d88391e9
     }
     // APP : {
     //     url : '/home',

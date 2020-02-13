@@ -2,7 +2,11 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import { Form, Menu,Input, Button, notification, message, Modal, Table, Icon, Select, Row} from 'antd';
 import loaihosoService from '../../Service/loaihoso.service';
+import hosoService from '../../Service/hosotailieu.service';
+import tailieuService from'../../Service/tailieu.service';
+import nguoidungService from '../../Service/nguoidung.service';
 import ExportExel from '../Common/Export/ExportExel';
+import * as CONSTANT from '../../Constant/constant';
 import _ from 'lodash';
 const { Option } = Select;
 const { Search } = Input;
@@ -18,6 +22,9 @@ export default class LoaiHoSo extends React.Component {
             dataLoaiHoSos: [],
             count: 1,
         };
+        this.nguoidungService = new nguoidungService();
+        this.hosoService = new hosoService();
+        this.tailieuService = new tailieuService();
         this.loaihosoService = new loaihosoService();
         this.handChange = this.handChange.bind(this);
         this.removeItem = this.removeItem.bind(this);
@@ -27,6 +34,100 @@ export default class LoaiHoSo extends React.Component {
         this.isEditting = this.isEditting.bind(this);
         
     }
+    canNotAccess = ()=>{
+        notification.error(
+            {
+                message: "Bạn không có quyền truy cập",
+                defaultValue: "topRight",
+                duration: 1,
+            }
+        )
+        this.props.history.push("/home")
+      //  return;
+    }
+    isAdmin = ()=>{
+        var tmp = CONSTANT.GROUP.ADMIN;
+        
+      if(this.nguoidungService.getGroupUserCurrent() === tmp){
+        return true;
+      }
+      return false;
+      }
+      isThuThu = ()=>{
+        var tmp = CONSTANT.GROUP.THUTHU;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isNhanVien =()=>{
+        var tmp = CONSTANT.GROUP.NHANVIEN;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isQuanLy = ()=>{
+        var tmp = CONSTANT.GROUP.QUANLY;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isLanhDao = ()=>{
+        var tmp = CONSTANT.GROUP.LANHDAO;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+    canNotAccess = ()=>{
+        notification.error(
+            {
+                message: "Bạn không có quyền truy cập",
+                defaultValue: "topRight",
+                duration: 1,
+            }
+        )
+        this.props.history.push("/home")
+      //  return;
+    }
+    isAdmin = ()=>{
+        var tmp = CONSTANT.GROUP.ADMIN;
+        
+      if(this.nguoidungService.getGroupUserCurrent() === tmp){
+        return true;
+      }
+      return false;
+      }
+      isThuThu = ()=>{
+        var tmp = CONSTANT.GROUP.THUTHU;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isNhanVien =()=>{
+        var tmp = CONSTANT.GROUP.NHANVIEN;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isQuanLy = ()=>{
+        var tmp = CONSTANT.GROUP.QUANLY;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
+      isLanhDao = ()=>{
+        var tmp = CONSTANT.GROUP.LANHDAO;
+        if(this.nguoidungService.getGroupUserCurrent() === tmp){
+          return true;
+        }
+        return false;
+      }
     cancel() {
         this.setState({ visible: false });
     }
@@ -53,7 +154,7 @@ export default class LoaiHoSo extends React.Component {
         }
         var TenLoaiHoSos = _.map(dataSource, function (lhs) { return lhs.TenLoaiHoSo });
         var MaLoaiHoSos = _.map(dataSource, function (lhs) { return lhs.MaLoaiHoSo });      
-        if (this.state.TenLoaiHoSo === "" || this.state.MaLoaiHoSo === "") {
+        if (this.state.TenLoaiHoSo === null || this.state.MaLoaiHoSo === null) {
             var messages = "Vui lòng nhập đủ trường thông tin ";
             message.warning(messages);
             return;
@@ -100,6 +201,14 @@ export default class LoaiHoSo extends React.Component {
         }
 
     }
+
+    canDelete = (record)=>{
+        if((_.indexOf(this.state.dataHoSos,record.IdLoaiHoSo) !==-1)||((_.indexOf(this.state.dataTLs,record.IdLoaiHoSo) !==-1))){   
+            return false;
+        }
+        return true;
+    }
+
     removeItem(record) {
         var _this = this;
         Modal.confirm({
@@ -108,6 +217,16 @@ export default class LoaiHoSo extends React.Component {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
+                if(!_this.canDelete(record)){
+                    notification.error(
+                        {
+                            message: "Có lỗi xảy ra !",
+                            defaultValue: "topRight",
+                            description:"Dữ liệu đang được liên kết."
+                        }
+                    )
+                    return;
+                }
                 _this.loaihosoService.deleteItem(record.IdLoaiHoSo)
                     .then(function () {
                         notification.success({
@@ -141,8 +260,39 @@ export default class LoaiHoSo extends React.Component {
             [name]: value,
         })
     }
+    searchItem = (query)=>{
+        var _query = "Where TenLoaiHoSo Like "+"'"+query+"%'"; 
+        var _this = this;
+        var query = "";
+        _this.loaihosoService.getItems(_query)
+            .then(function (data) {
+                var element = {
+                    TenLoaiHoSo: <Input name="TenLoaiHoSo" type="text" onChange={_this.handChange} />,
+                    MaLoaiHoSo: <Input name="MaLoaiHoSo" type="text" onChange={_this.handChange} />,
+                    isCreate: true,
+                };
+                data.data.push(element);
+                _this.setState({
+                    dataLoaiHoSos: data.data,
+                })
+            })
+            _this.hosoService.getItems(query).then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"LoaiHoSoId")
+                })
+            })
+            _this.tailieuService.getItems(query).then(function(data){
+                _this.setState({
+                    dataTLs:_.map(data.data,"LoaiTaiLieuId")
+                })
+            })   
+    }
     componentDidMount() {
         var _this = this;
+        if(!this.isThuThu() && !this.isAdmin()){
+            this.canNotAccess();
+            return;
+          }
         var query = "";
         _this.loaihosoService.getItems(query)
             .then(function (data) {
@@ -156,6 +306,16 @@ export default class LoaiHoSo extends React.Component {
                     dataLoaiHoSos: data.data,
                 })
             })
+            _this.hosoService.getItems(query).then(function(data){
+                _this.setState({
+                    dataHoSos:_.map(data.data,"LoaiHoSoId")
+                })
+            })
+            _this.tailieuService.getItems(query).then(function(data){
+                _this.setState({
+                    dataTLs:_.map(data.data,"LoaiTaiLieuId")
+                })
+            })    
     }
     isEditting(record) {
         var _this = this;

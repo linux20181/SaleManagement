@@ -11,3 +11,6 @@
  - Run Server : node server.js (Cd đến serverconfig ).
 
  - Run App : yarn start .
+ 
+ - 13/2/2020
+ 

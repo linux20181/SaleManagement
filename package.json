@@ -7,7 +7,7 @@
     "@progress/kendo-react-excel-export": "^3.6.0",
     "antd": "^3.24.2",
     "axios": "^0.19.0",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cookie": "^0.4.0",
     "cors": "^2.8.5",

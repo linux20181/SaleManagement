@@ -6,7 +6,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "@progress/kendo-react-excel-export": "^3.6.0",
     "antd": "^3.24.2",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
     "cookie": "^0.4.0",
